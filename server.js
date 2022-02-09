@@ -23,6 +23,7 @@ if (process.env.NODE_ENV === "production") {
 app.use(routes);
 
 var syncOptions = {};
+console.log(process.env.SYNC_MODEL)
 syncOptions.force = process.env.SYNC_MODEL === "true" ? true : false;
 
 // Starting the server, syncing our models ------------------------------------/
