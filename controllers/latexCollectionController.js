@@ -2,7 +2,10 @@ const db = require("../database/models");
 
 module.exports = {
   findAll: function (req, res) {
-    db.LatexCollection.findAll({ order: [["collectionDate", "DESC"]] })
+    db.LatexCollection.findAll({
+      include: [{ model: db.Customer, attributes: ["customerName"] }],
+      order: [["collectionDate", "DESC"]],
+    })
       .then((dbModel) => res.json(dbModel))
       // .catch((err) => res.status(422).json(err));
       .catch((err) => {
@@ -12,6 +15,7 @@ module.exports = {
   },
   findSpecificColletion: function (req, res) {
     db.LatexCollection.findOne({
+      include: [{ model: db.Customer, attributes: ["customerName"] }],
       where: {
         seqNumber: parseInt(req.query.seqNumber),
         customerId: parseInt(req.query.customerId),

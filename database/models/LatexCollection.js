@@ -29,21 +29,48 @@ module.exports = function (sequelize, DataTypes) {
         allowNull: false,
       },
       grossWeight: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.FLOAT(6, 2),
         allowNull: false,
       },
       tareWeight: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.FLOAT(6, 2),
         allowNull: false,
       },
       netWeight: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.FLOAT(6, 2),
         allowNull: false,
       },
+      drcPercent: {
+        type: DataTypes.FLOAT(6, 2),
+        allowNull: true,
+      },
+      dryWeight: {
+        type: DataTypes.FLOAT(6, 2),
+        allowNull: true,
+      },
+      unitRatePerKg: {
+        type: DataTypes.FLOAT(7, 2),
+        allowNull: true,
+      },
+      totalAmount:{
+        type: DataTypes.FLOAT(9, 2),
+        allowNull: true,
+      },
+      paymentStatus:{
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      }
     },
     {
       tableName: "LatexCollection",
     }
   );
+
+  LatexCollection.associate = function(models) {
+    models.LatexCollection.belongsTo(models.Customer, {
+      foreignKey: "customerId"
+    });
+  };
+
   return LatexCollection;
 };
