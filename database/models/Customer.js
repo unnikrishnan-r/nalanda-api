@@ -25,7 +25,7 @@ module.exports = function (sequelize, DataTypes) {
       customerEmail: {
         type: DataTypes.STRING,
       },
-      customerStatus:{
+      customerStatus: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
       },
@@ -35,14 +35,20 @@ module.exports = function (sequelize, DataTypes) {
     },
     {
       tableName: "Customer",
-    },
+    }
   );
 
-  Customer.associate = function(models){
-    models.Customer.hasMany(models.LatexCollection,{
-      foreignKey: "customerId"
-    })
-  }
+  Customer.associate = function (models) {
+    models.Customer.hasMany(models.LatexCollection, {
+      foreignKey: "customerId",
+    });
+  };
+  Customer.associate = function (models) {
+    models.Customer.hasMany(models.CashPayment, {
+      foreignKey: "customerId",
+    });
+  };
+
 
   return Customer;
 };
