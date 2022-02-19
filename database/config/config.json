@@ -7,7 +7,10 @@
       "dialect": "mysql"
     },
     "production": {
-      "use_env_variable": "mysql://oxdz90zavl1k0w37:qxjgrtg892kf9gmb@j21q532mu148i8ms.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/w3gcshryy3sp5pwk",
+      "host": "j21q532mu148i8ms.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
+      "username":"oxdz90zavl1k0w37",
+      "password": "qxjgrtg892kf9gmb",
+      "database": "w3gcshryy3sp5pwk",
       "dialect": "mysql"
     },
     "test": {
