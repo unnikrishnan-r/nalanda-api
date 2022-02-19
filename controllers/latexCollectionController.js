@@ -38,8 +38,6 @@ module.exports = {
       });
   },
   updateSpecificColletion: function (req, res) {
-    console.log(req.body);
-
     db.LatexCollection.update(req.body, {
       where: {
         seqNumber: parseInt(req.body.seqNumber),
