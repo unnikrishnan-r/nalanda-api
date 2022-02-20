@@ -11,6 +11,5 @@ router
   .route("/:customerId")
   .get(newCustomerConstroller.findByCustId)
   .put(newCustomerConstroller.update)
-  .delete(newCustomerConstroller.remove);
 
 module.exports = router;

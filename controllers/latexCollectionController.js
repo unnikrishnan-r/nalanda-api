@@ -29,6 +29,11 @@ module.exports = {
       });
   },
   create: function (req, res) {
+    req.body.tareWeight =
+      req.body.tareWeight || parseFloat(process.env.BARREL_WEIGHT);
+    req.body.netWeight = parseFloat(
+      parseFloat(req.body.grossWeight - req.body.tareWeight).toFixed(2)
+    );
     db.LatexCollection.create(req.body)
       .then((dbModel) => res.json(dbModel))
       // .catch((err) => console.log(err));
@@ -38,6 +43,9 @@ module.exports = {
       });
   },
   updateSpecificColletion: function (req, res) {
+    if (req.body.drcPercent > 0 && req.body.netWeight > 0) {
+      req.body.dryWeight = (req.body.drcPercent / 100) * req.body.netWeight;
+    }
     db.LatexCollection.update(req.body, {
       where: {
         seqNumber: parseInt(req.body.seqNumber),

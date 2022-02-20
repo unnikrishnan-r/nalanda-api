@@ -34,11 +34,4 @@ module.exports = {
       .then((dbModel) => res.json(dbModel))
       .catch((err) => res.status(422).json(err));
   },
-  remove: function (req, res) {
-    db.Customer.destroy({
-      where: { customerId: parseInt(req.params.customerId) },
-    })
-      .then((dbModel) => res.json(dbModel))
-      .catch((err) => res.status(422).json(err));
-  },
 };
