@@ -2,38 +2,71 @@ const db = require("../database/models");
 var Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 
-module.exports = {
-  applyRate: function (req, res) {
-    db.BillingSummary.findOne({
-      where: {
-        billPeriod: req.body.billPeriod,
-      },
-    })
-      // .then((dbModel) => res.json(dbModel))
-      .then((dbModel) => {
-        req.body.billFromDate = dbModel.dataValues.billFromDate;
-        req.body.billToDate = dbModel.dataValues.billToDate;
-        req.body.unitRatePerKg = dbModel.dataValues.unitRatePerKg;
-        console.log(req.body);
-        db.LatexCollection.update(req.body, {
-          where: {
-            collectionDate: {
-              [Op.gte]: req.body.billFromDate,
-              [Op.lte]: req.body.billToDate,
-            },
-          },
-        })
-          .then((dbModel) => res.json(dbModel))
-          .catch((err) => {
-            console.log(err);
-            res.status(400).json(err);
-          });
-      })
+async function findUnitRate(billPeriod) {
+  return db.BillingSummary.findOne({
+    where: {
+      billPeriod: billPeriod,
+    },
+  });
+}
 
-      // .catch((err) => res.status(422).json(err));
-      .catch((err) => {
-        console.log(err);
-        res.status(400).json(err);
-      });
+async function updateLatexEntries(billFromDate, billToDate, unitRatePerKg) {
+  return db.LatexCollection.update(
+    { unitRatePerKg },
+    {
+      where: {
+        collectionDate: { [Op.gte]: billFromDate, [Op.lte]: billToDate },
+      },
+    }
+  );
+}
+
+async function updateTotalAmountForLatexEntry(
+  seqNumber,
+  customerId,
+  dryWeight,
+  unitRatePerKg
+) {
+  var totalAmount = dryWeight * unitRatePerKg;
+  return db.LatexCollection.update(
+    { totalAmount },
+    {
+      where: {
+        seqNumber: seqNumber,
+        customerId: customerId,
+      },
+    }
+  );
+}
+
+module.exports = {
+  applyRate: async function (req, res) {
+    let billingObject = await findUnitRate(req.body.billPeriod);
+    let latexObject = await updateLatexEntries(
+      billingObject.dataValues.billFromDate,
+      billingObject.dataValues.billToDate,
+      billingObject.dataValues.unitRatePerKg
+    );
+    let latexEntries = await db.LatexCollection.findAll({
+      where: {
+        collectionDate: {
+          [Op.gte]: billingObject.dataValues.billFromDate,
+          [Op.lte]: billingObject.dataValues.billToDate,
+        },
+      },
+    });
+    for (var i = 0; i < latexEntries.length; i++) {
+      let result = await updateTotalAmountForLatexEntry(
+        latexEntries[i].dataValues.seqNumber,
+        latexEntries[i].dataValues.customerId,
+        latexEntries[i].dataValues.dryWeight,
+        latexEntries[i].dataValues.unitRatePerKg
+      );
+    }
+    if (i == latexEntries.length) {
+      res.json("Success");
+    } else {
+      res.status(422);
+    }
   },
 };
