@@ -7,7 +7,6 @@ const Op = Sequelize.Op;
 const fs = require("fs");
 const PDFDocument = require("pdfkit-table");
 
-
 async function calculateTotalLatexLine(latexData) {
   let totalLatexLine = {};
   var totalLatexAmount = 0;
@@ -120,7 +119,6 @@ async function createPdf(req, res) {
   // start pdf document
   let doc = new PDFDocument({ margin: 30, size: "A4" });
   // to save on server
-  doc.pipe(fs.createWriteStream("./document.pdf"));
 
   doc
     .font("Courier-Bold")
@@ -180,6 +178,15 @@ async function createPdf(req, res) {
     .fontSize(10)
     .text("FOR NALANDA ASSOCIATES", { align: "right" });
 
+  let filePath = "./";
+  let fileName = req.customerDetails.customerName;
+  let dateComponent = moment().format("MMDDYYYY");
+  let fileExtension = ".pdf";
+  let fullFilePath = filePath.concat(fileName, dateComponent,fileExtension);
+  console.log(fullFilePath);
+  // doc.pipe(fs.createWriteStream("./document.pdf"));
+  doc.pipe(fs.createWriteStream(fullFilePath));
+
   doc.pipe(res);
 
   // done
@@ -224,7 +231,7 @@ module.exports = {
       let cashPaymentTableJson = await createCashPaymentTable(
         customerDetails.CashPayments
       );
-      createPdf({ customerDetails ,latexTableJson,cashPaymentTableJson}, res);
+      createPdf({ customerDetails, latexTableJson, cashPaymentTableJson }, res);
     }
   },
 };
