@@ -33,6 +33,7 @@ async function updateTotalAmountForLatexEntry(
   unitRatePerKg
 ) {
   var totalAmount = dryWeight * unitRatePerKg;
+  console.log(seqNumber, customerId, dryWeight, unitRatePerKg);
   return db.LatexCollection.update(
     { totalAmount },
     {
@@ -232,9 +233,15 @@ async function createPdf(req, res) {
   doc.end();
 }
 
+async function postBillGenerationEntry(billRecord) {
+  return db.CashPayment.create(billRecord);
+}
+
 module.exports = {
   applyRate: async function (req, res) {
     let billingObject = await findUnitRate(req.body.billPeriod);
+    billingObject.dataValues.unitRatePerKg =
+      req.body.unitRatePerKg || billingObject.dataValues.unitRatePerKg;
     let latexObject = await updateLatexEntries(
       billingObject.dataValues.billFromDate,
       billingObject.dataValues.billToDate,
@@ -248,16 +255,36 @@ module.exports = {
         },
       },
     });
+    let grandTotal = 0;
     for (var i = 0; i < latexEntries.length; i++) {
+      grandTotal +=
+        latexEntries[i].dataValues.dryWeight *
+        latexEntries[i].dataValues.unitRatePerKg;
+
       let result = await updateTotalAmountForLatexEntry(
         latexEntries[i].dataValues.seqNumber,
         latexEntries[i].dataValues.customerId,
         latexEntries[i].dataValues.dryWeight,
         latexEntries[i].dataValues.unitRatePerKg
       );
+      console.log(result);
     }
     if (i == latexEntries.length) {
-      res.json("Success");
+      let billRecord = {};
+      billRecord.customerId = latexEntries[0].customerId;
+      billRecord.paymentDate = moment().format();
+      billRecord.totalAmount = grandTotal;
+      billRecord.paymentType = 1;
+      billRecord.paymentNotes = "Bill Generated on ".concat(
+        moment().format("DD/MM/YYYY")
+      );
+      let billEntry = await postBillGenerationEntry(billRecord);
+
+      if (billEntry) {
+        res.json("Success");
+      } else {
+        res.status(422);
+      }
     } else {
       res.status(422);
     }

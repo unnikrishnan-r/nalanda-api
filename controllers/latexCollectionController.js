@@ -43,14 +43,18 @@ module.exports = {
       });
   },
   updateSpecificColletion: function (req, res) {
-    if (req.body.drcPercent > 0 && req.body.netWeight > 0) {
-      req.body.dryWeight = (req.body.drcPercent / 100) * req.body.netWeight;
-    }
     req.body.tareWeight =
       req.body.tareWeight || parseFloat(process.env.BARREL_WEIGHT);
+
     req.body.netWeight = parseFloat(
       parseFloat(req.body.grossWeight - req.body.tareWeight).toFixed(2)
     );
+
+    req.body.dryWeight = (req.body.drcPercent / 100) * req.body.netWeight;
+
+    req.body.totalAmount =
+      req.body.unitRatePerKg *
+      (Math.round((req.body.dryWeight + Number.EPSILON) * 100) / 100);
 
     db.LatexCollection.update(req.body, {
       where: {

@@ -2,7 +2,6 @@ const router = require("express").Router();
 const latextCollectionController = require("../../controllers/latexCollectionController");
 
 // Matches with "/api/projects"
-console.log("latex collection api");
 
 router
   .route("/")
