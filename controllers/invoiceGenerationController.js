@@ -182,7 +182,7 @@ async function createPdf(req, res) {
   let fileName = req.customerDetails.customerName;
   let dateComponent = moment().format("MMDDYYYY");
   let fileExtension = ".pdf";
-  let fullFilePath = filePath.concat(fileName, dateComponent,fileExtension);
+  let fullFilePath = filePath.concat(fileName, dateComponent, fileExtension);
   console.log(fullFilePath);
   // doc.pipe(fs.createWriteStream("./document.pdf"));
   doc.pipe(fs.createWriteStream(fullFilePath));
@@ -195,12 +195,11 @@ async function createPdf(req, res) {
 
 module.exports = {
   generateInvoiceForCustomer: async function (req, res) {
-    let customerObject = await db.Customer.findOne({
+    let customerObject = await db.Customer.findAll({
       include: [
         {
           model: db.CashPayment,
           where: {
-            customerId: req.body.customerId,
             paymentDate: {
               [Op.gte]: req.body.billFromDate,
               [Op.lte]: req.body.billToDate,
@@ -210,7 +209,6 @@ module.exports = {
         {
           model: db.LatexCollection,
           where: {
-            customerId: req.body.customerId,
             collectionDate: {
               [Op.gte]: req.body.billFromDate,
               [Op.lte]: req.body.billToDate,
@@ -218,20 +216,22 @@ module.exports = {
           },
         },
       ],
-      where: {
-        customerId: req.body.customerId,
-      },
     });
     if (customerObject) {
-      let customerDetails;
-      customerDetails = customerObject.dataValues;
-      let latexTableJson = await createLatexTable(
-        customerDetails.LatexCollections
-      );
-      let cashPaymentTableJson = await createCashPaymentTable(
-        customerDetails.CashPayments
-      );
-      createPdf({ customerDetails, latexTableJson, cashPaymentTableJson }, res);
+      customerObject.forEach(async (customerObject) => {
+        let customerDetails;
+        customerDetails = customerObject.dataValues;
+        let latexTableJson = await createLatexTable(
+          customerDetails.LatexCollections
+        );
+        let cashPaymentTableJson = await createCashPaymentTable(
+          customerDetails.CashPayments
+        );
+        createPdf(
+          { customerDetails, latexTableJson, cashPaymentTableJson },
+          res
+        );
+      });
     }
   },
 };
