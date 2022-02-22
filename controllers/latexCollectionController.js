@@ -46,6 +46,12 @@ module.exports = {
     if (req.body.drcPercent > 0 && req.body.netWeight > 0) {
       req.body.dryWeight = (req.body.drcPercent / 100) * req.body.netWeight;
     }
+    req.body.tareWeight =
+      req.body.tareWeight || parseFloat(process.env.BARREL_WEIGHT);
+    req.body.netWeight = parseFloat(
+      parseFloat(req.body.grossWeight - req.body.tareWeight).toFixed(2)
+    );
+
     db.LatexCollection.update(req.body, {
       where: {
         seqNumber: parseInt(req.body.seqNumber),
