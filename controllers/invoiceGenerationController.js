@@ -7,43 +7,6 @@ const Op = Sequelize.Op;
 const fs = require("fs");
 const PDFDocument = require("pdfkit-table");
 
-async function findUnitRate(billPeriod) {
-  return db.BillingSummary.findOne({
-    where: {
-      billPeriod: billPeriod,
-    },
-  });
-}
-
-async function updateLatexEntries(billFromDate, billToDate, unitRatePerKg) {
-  return db.LatexCollection.update(
-    { unitRatePerKg },
-    {
-      where: {
-        collectionDate: { [Op.gte]: billFromDate, [Op.lte]: billToDate },
-      },
-    }
-  );
-}
-
-async function updateTotalAmountForLatexEntry(
-  seqNumber,
-  customerId,
-  dryWeight,
-  unitRatePerKg
-) {
-  var totalAmount = dryWeight * unitRatePerKg;
-  console.log(seqNumber, customerId, dryWeight, unitRatePerKg);
-  return db.LatexCollection.update(
-    { totalAmount },
-    {
-      where: {
-        seqNumber: seqNumber,
-        customerId: customerId,
-      },
-    }
-  );
-}
 
 async function calculateTotalLatexLine(latexData) {
   let totalLatexLine = {};
@@ -70,14 +33,6 @@ async function calculateTotalLatexLine(latexData) {
     rate: "",
     amount: totalLatexAmount.toLocaleString("en-IN"),
   };
-  console.log(totalLatexAmount, totalLatexLine.amount);
-  await db.CashPayment.create({
-    customerId: latexData[0].customerId,
-    paymentDate: moment().format(),
-    totalAmount: totalLatexAmount,
-    paymentType: 1,
-    paymentNotes: "Bill Generated on ".concat(moment().format("DD/MM/YYYY")),
-  });
   return totalLatexLine;
 }
 
@@ -109,7 +64,6 @@ async function createLatexTable(latexData) {
     });
   });
   latexTableJson.datas.push(await calculateTotalLatexLine(latexData));
-  // console.log(latexTableJson);
   return latexTableJson;
 }
 
@@ -163,7 +117,6 @@ async function createCashPaymentTable(cashPaymentData) {
 }
 
 async function createPdf(req, res) {
-  console.log(req);
   // start pdf document
   let doc = new PDFDocument({ margin: 30, size: "A4" });
   // to save on server
@@ -233,62 +186,7 @@ async function createPdf(req, res) {
   doc.end();
 }
 
-async function postBillGenerationEntry(billRecord) {
-  return db.CashPayment.create(billRecord);
-}
-
 module.exports = {
-  applyRate: async function (req, res) {
-    let billingObject = await findUnitRate(req.body.billPeriod);
-    billingObject.dataValues.unitRatePerKg =
-      req.body.unitRatePerKg || billingObject.dataValues.unitRatePerKg;
-    let latexObject = await updateLatexEntries(
-      billingObject.dataValues.billFromDate,
-      billingObject.dataValues.billToDate,
-      billingObject.dataValues.unitRatePerKg
-    );
-    let latexEntries = await db.LatexCollection.findAll({
-      where: {
-        collectionDate: {
-          [Op.gte]: billingObject.dataValues.billFromDate,
-          [Op.lte]: billingObject.dataValues.billToDate,
-        },
-      },
-    });
-    let grandTotal = 0;
-    for (var i = 0; i < latexEntries.length; i++) {
-      grandTotal +=
-        latexEntries[i].dataValues.dryWeight *
-        latexEntries[i].dataValues.unitRatePerKg;
-
-      let result = await updateTotalAmountForLatexEntry(
-        latexEntries[i].dataValues.seqNumber,
-        latexEntries[i].dataValues.customerId,
-        latexEntries[i].dataValues.dryWeight,
-        latexEntries[i].dataValues.unitRatePerKg
-      );
-      console.log(result);
-    }
-    if (i == latexEntries.length) {
-      let billRecord = {};
-      billRecord.customerId = latexEntries[0].customerId;
-      billRecord.paymentDate = moment().format();
-      billRecord.totalAmount = grandTotal;
-      billRecord.paymentType = 1;
-      billRecord.paymentNotes = "Bill Generated on ".concat(
-        moment().format("DD/MM/YYYY")
-      );
-      let billEntry = await postBillGenerationEntry(billRecord);
-
-      if (billEntry) {
-        res.json("Success");
-      } else {
-        res.status(422);
-      }
-    } else {
-      res.status(422);
-    }
-  },
   generateInvoiceForCustomer: async function (req, res) {
     let customerObject = await db.Customer.findOne({
       include: [
@@ -326,7 +224,7 @@ module.exports = {
       let cashPaymentTableJson = await createCashPaymentTable(
         customerDetails.CashPayments
       );
-      createPdf({ customerDetails, latexTableJson, cashPaymentTableJson }, res);
+      createPdf({ customerDetails ,latexTableJson,cashPaymentTableJson}, res);
     }
   },
 };

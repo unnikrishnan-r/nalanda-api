@@ -5,7 +5,6 @@ const latextCollectionController = require("../../controllers/latexCollectionCon
 // Matches with "/api/projects"
 console.log("invoice generation api");
 
-router.route("/applyRate").put(invoiceGenerationController.applyRate);
 router
   .route("/generateInvoiceForCustomer")
   .put(invoiceGenerationController.generateInvoiceForCustomer);
