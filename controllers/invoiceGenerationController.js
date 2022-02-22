@@ -99,7 +99,7 @@ async function createLatexTable(latexData) {
       slno: index + 1,
       date: moment(collection.collectionDate).format("DD/MM/YYYY"),
       grossWt: collection.grossWeight,
-      barrelWt: collection.grossWeight,
+      barrelWt: collection.tareWeight,
       netWt: collection.netWeight,
       drc: collection.drcPercent,
       dryWt: collection.dryWeight,
