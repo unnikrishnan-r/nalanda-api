@@ -7,6 +7,8 @@ var express = require("express");
 var db = require("./database/models");
 
 const routes = require("./routes");
+var cors = require('cors');
+
 const app = express();
 // app.use(morgan('tiny'))
 const PORT = process.env.PORT || 3000;
@@ -20,7 +22,13 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // Routes
-app.use(routes);
+app.use(routes, cors());
+// CORS header `Access-Control-Allow-Origin` set to accept all
+app.get('/allow-cors', function(request, response) {
+  response.set('Access-Control-Allow-Origin', '*');
+  response.sendFile(__dirname + '/message.json');
+});
+
 
 var syncOptions = {};
 console.log(process.env.SYNC_MODEL)
