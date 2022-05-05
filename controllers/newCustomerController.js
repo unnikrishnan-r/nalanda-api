@@ -3,7 +3,11 @@ const db = require("../database/models");
 module.exports = {
   findAll: function (req, res) {
     db.Customer.findAll({ order: [["customerName", "ASC"]] })
-      .then((dbModel) => res.json(dbModel))
+      .then(
+        (dbModel) => (
+          res.set("Access-Control-Allow-Origin", "*"), res.json(dbModel)
+        )
+      )
       // .catch((err) => res.status(422).json(err));
       .catch((err) => {
         console.log(err.parent);
