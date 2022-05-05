@@ -24,7 +24,7 @@ if (process.env.NODE_ENV === "production") {
 // Routes
 app.use(routes, cors());
 // CORS header `Access-Control-Allow-Origin` set to accept all
-app.get('/allow-cors', function(request, response) {
+app.get('/cors', function(request, response) {
   response.header('Access-Control-Allow-Origin', '*');
   response.set('Access-Control-Allow-Origin', '*');
   response.sendFile(__dirname + '/message.json');
