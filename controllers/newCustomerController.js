@@ -5,7 +5,7 @@ module.exports = {
     db.Customer.findAll({ order: [["customerName", "ASC"]] })
       .then(
         (dbModel) => (
-          // res.set("Access-Control-Allow-Origin", "*"), 
+          res.set("Access-Control-Allow-Origin", "*"), 
           res.json(dbModel)
         )
       )
