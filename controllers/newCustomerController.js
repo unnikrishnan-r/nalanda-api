@@ -41,6 +41,9 @@ module.exports = {
       });
   },
   update: function (req, res) {
+    console.log("Received Update request")
+    console.log(req.body)
+    console.log(req.params)
     db.Customer.update(req.body, {
       where: { customerId: req.params.customerId },
     })
