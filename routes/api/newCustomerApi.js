@@ -11,5 +11,6 @@ router
   .route("/:customerId")
   .get(newCustomerConstroller.findByCustId)
   .put(newCustomerConstroller.update)
+  .options(newCustomerConstroller.options)
 
 module.exports = router;
