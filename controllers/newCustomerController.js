@@ -49,7 +49,12 @@ module.exports = {
     })
       .then(
         (dbModel) => (
-          res.set("Access-Control-Allow-Origin", "*"), res.json(dbModel)
+          res.set({
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "*",
+            "Content-Type": "application/json",
+          }),
+          res.json(dbModel)
         )
       )
       .catch((err) => res.status(422).json(err));
@@ -58,6 +63,7 @@ module.exports = {
     res.set({
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "*",
+      "Content-Type": "application/json",
     }),
       res.json();
   },
