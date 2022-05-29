@@ -41,9 +41,9 @@ module.exports = {
       });
   },
   update: function (req, res) {
-    console.log("Received Update request")
-    console.log(req.body)
-    console.log(req.params)
+    console.log("Received Update request");
+    console.log(req.body);
+    console.log(req.params);
     db.Customer.update(req.body, {
       where: { customerId: req.params.customerId },
     })
@@ -54,7 +54,11 @@ module.exports = {
       )
       .catch((err) => res.status(422).json(err));
   },
-  options: function(req,res){
-    res.set("Access-Control-Allow-Origin", "*"), res.json()
-  }
+  options: function (req, res) {
+    res.set(
+      ("Access-Control-Allow-Origin", "*"),
+      ("Access-Control-Allow-Methods", "*")
+    ),
+      res.json();
+  },
 };
