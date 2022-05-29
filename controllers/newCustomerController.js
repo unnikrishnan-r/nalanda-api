@@ -55,10 +55,10 @@ module.exports = {
       .catch((err) => res.status(422).json(err));
   },
   options: function (req, res) {
-    res.set(
-      ("Access-Control-Allow-Origin", "*"),
-      ("Access-Control-Allow-Methods", "*")
-    ),
+    res.set({
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "*",
+    }),
       res.json();
   },
 };
