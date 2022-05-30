@@ -5,7 +5,8 @@ const newCustomerConstroller = require("../../controllers/newCustomerController"
 router
   .route("/")
   .post(newCustomerConstroller.create)
-  .get(newCustomerConstroller.findAll);
+  .get(newCustomerConstroller.findAll)
+  .options(newCustomerConstroller.options)
 
 router
   .route("/:customerId")
