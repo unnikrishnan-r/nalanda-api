@@ -31,7 +31,13 @@ module.exports = {
     db.Customer.create(req.body)
       .then(
         (dbModel) => (
-          res.set("Access-Control-Allow-Origin", "*"), res.json(dbModel)
+          res.set({
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+            "Content-Type": "application/json",
+          }),
+          res.json(dbModel)
         )
       )
       // .catch((err) => console.log(err));
