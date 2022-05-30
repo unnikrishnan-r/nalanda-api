@@ -6,11 +6,14 @@ const latextCollectionController = require("../../controllers/latexCollectionCon
 router
   .route("/")
   .post(latextCollectionController.create)
-  .get(latextCollectionController.findAll);
+  .get(latextCollectionController.findAll)
+  .options(latextCollectionController.options)
+
 
 router
   .route("/key")
   .get(latextCollectionController.findSpecificColletion)
-  .put(latextCollectionController.updateSpecificColletion);
+  .put(latextCollectionController.updateSpecificColletion)
+  .options(latextCollectionController.options)
 
 module.exports = router;

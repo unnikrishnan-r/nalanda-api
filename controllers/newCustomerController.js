@@ -67,8 +67,6 @@ module.exports = {
       .catch((err) => res.status(422).json(err));
   },
   options: function (req, res) {
-    console.log("Options call")
-    console.log(req)
     res.set({
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "*",

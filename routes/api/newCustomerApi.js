@@ -1,17 +1,17 @@
 const router = require("express").Router();
-const newCustomerConstroller = require("../../controllers/newCustomerController");
+const newCustomerController = require("../../controllers/newCustomerController");
 
 // Matches with "/api/projects"
 router
   .route("/")
-  .post(newCustomerConstroller.create)
-  .get(newCustomerConstroller.findAll)
-  .options(newCustomerConstroller.options)
+  .post(newCustomerController.create)
+  .get(newCustomerController.findAll)
+  .options(newCustomerController.options)
 
 router
   .route("/:customerId")
-  .get(newCustomerConstroller.findByCustId)
-  .put(newCustomerConstroller.update)
-  .options(newCustomerConstroller.options)
+  .get(newCustomerController.findByCustId)
+  .put(newCustomerController.update)
+  .options(newCustomerController.options)
 
 module.exports = router;
