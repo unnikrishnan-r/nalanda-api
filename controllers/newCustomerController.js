@@ -34,7 +34,7 @@ module.exports = {
           res.set({
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "*",
-            "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+            "Access-Control-Allow-Headers": "*",
             "Content-Type": "application/json",
           }),
           res.json(dbModel)
@@ -58,7 +58,7 @@ module.exports = {
           res.set({
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "*",
-            "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+            "Access-Control-Allow-Headers": "*",
             "Content-Type": "application/json",
           }),
           res.json(dbModel)
@@ -70,7 +70,7 @@ module.exports = {
     res.set({
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "*",
-      "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+      "Access-Control-Allow-Headers": "*",
       "Content-Type": "application/json",
     }),
       res.json();
