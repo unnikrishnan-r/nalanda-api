@@ -6,7 +6,18 @@ module.exports = {
       include: [{ model: db.Customer, attributes: ["customerName"] }],
       order: [["paymentDate", "DESC"]],
     })
-      .then((dbModel) => res.json(dbModel))
+      .then(
+        (dbModel) => (
+          res.set({
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers":
+              "Origin, X-Requested-With, Content-Type, Accept",
+            "Content-Type": "application/json",
+          }),
+          res.json(dbModel)
+        )
+      )
       // .catch((err) => res.status(422).json(err));
       .catch((err) => {
         console.log(err.parent);
@@ -21,7 +32,18 @@ module.exports = {
         customerId: parseInt(req.query.customerId),
       },
     })
-      .then((dbModel) => res.json(dbModel))
+      .then(
+        (dbModel) => (
+          res.set({
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers":
+              "Origin, X-Requested-With, Content-Type, Accept",
+            "Content-Type": "application/json",
+          }),
+          res.json(dbModel)
+        )
+      )
       // .catch((err) => res.status(422).json(err));
       .catch((err) => {
         console.log(err.parent);
