@@ -1,6 +1,28 @@
 const db = require("../database/models");
+var Sequelize = require("sequelize");
+const Op = Sequelize.Op;
 
 module.exports = {
+  searchByName: function (req, res) {
+    console.log(req.query);
+    db.Customer.findAll(
+      {
+        where: { customerName: { [Op.like]: `%${req.query.searchString}%` } },
+      },
+      { order: [["customerName", "ASC"]] }
+    )
+      .then(
+        (dbModel) => (
+          res.set("Access-Control-Allow-Origin", "*"), res.json(dbModel)
+        )
+      )
+      // .catch((err) => res.status(422).json(err));
+      .catch((err) => {
+        console.log(err.parent);
+        res.status(400).json(err);
+      });
+  },
+
   findAll: function (req, res) {
     db.Customer.findAll({ order: [["customerName", "ASC"]] })
       .then(
@@ -34,7 +56,8 @@ module.exports = {
           res.set({
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "*",
-            "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+            "Access-Control-Allow-Headers":
+              "Origin, X-Requested-With, Content-Type, Accept",
             "Content-Type": "application/json",
           }),
           res.json(dbModel)
@@ -58,7 +81,8 @@ module.exports = {
           res.set({
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "*",
-            "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+            "Access-Control-Allow-Headers":
+              "Origin, X-Requested-With, Content-Type, Accept",
             "Content-Type": "application/json",
           }),
           res.json(dbModel)
@@ -70,7 +94,8 @@ module.exports = {
     res.set({
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "*",
-      "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+      "Access-Control-Allow-Headers":
+        "Origin, X-Requested-With, Content-Type, Accept",
       "Content-Type": "application/json",
     }),
       res.json();

@@ -6,12 +6,16 @@ router
   .route("/")
   .post(newCustomerController.create)
   .get(newCustomerController.findAll)
-  .options(newCustomerController.options)
+  .options(newCustomerController.options);
 
+router
+  .route("/search")
+  .get(newCustomerController.searchByName)
+  .options(newCustomerController.options);
 router
   .route("/:customerId")
   .get(newCustomerController.findByCustId)
   .put(newCustomerController.update)
-  .options(newCustomerController.options)
+  .options(newCustomerController.options);
 
 module.exports = router;
