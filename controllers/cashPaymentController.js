@@ -30,13 +30,26 @@ module.exports = {
   },
 
   create: async function (req, res) {
-    return db.CashPayment.create(req.body)
-      .then((dbModel) => res.json(dbModel))
-      // .catch((err) => console.log(err));
-      .catch((err) => {
-        console.log(err.parent);
-        res.status(400).json(err);
-      });
+    return (
+      db.CashPayment.create(req.body)
+        .then(
+          (dbModel) => (
+            res.set({
+              "Access-Control-Allow-Origin": "*",
+              "Access-Control-Allow-Methods": "*",
+              "Access-Control-Allow-Headers":
+                "Origin, X-Requested-With, Content-Type, Accept",
+              "Content-Type": "application/json",
+            }),
+            res.json(dbModel)
+          )
+        )
+        // .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log(err.parent);
+          res.status(400).json(err);
+        })
+    );
   },
   updateSpecificPayment: function (req, res) {
     db.CashPayment.update(req.body, {
@@ -45,7 +58,18 @@ module.exports = {
         customerId: parseInt(req.body.customerId),
       },
     })
-      .then((dbModel) => res.json(dbModel))
+      .then(
+        (dbModel) => (
+          res.set({
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers":
+              "Origin, X-Requested-With, Content-Type, Accept",
+            "Content-Type": "application/json",
+          }),
+          res.json(dbModel)
+        )
+      )
       .catch((err) => res.status(422).json(err));
   },
   options: function (req, res) {
@@ -58,5 +82,4 @@ module.exports = {
     }),
       res.json();
   },
-
 };
