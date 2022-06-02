@@ -5,11 +5,13 @@ const cashPaymentController = require("../../controllers/cashPaymentController")
 router
   .route("/")
   .post(cashPaymentController.create)
-  .get(cashPaymentController.findAll);
+  .get(cashPaymentController.findAll)
+  .options(cashPaymentController.options);
 
 router
   .route("/key")
   .get(cashPaymentController.findSpecificPayment)
-  .put(cashPaymentController.updateSpecificPayment);
+  .put(cashPaymentController.updateSpecificPayment)
+  .options(cashPaymentController.options);
 
 module.exports = router;
