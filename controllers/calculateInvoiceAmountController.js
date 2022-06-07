@@ -51,6 +51,8 @@ module.exports = {
       attributes: [
         "customerId",
         [Sequelize.fn("SUM", Sequelize.col("totalAmount")), "totalAmount"],
+        [Sequelize.fn("SUM", Sequelize.col("netWeight")), "netWeight"],
+        [Sequelize.fn("SUM", Sequelize.col("dryWeight")), "dryWeight"],
       ],
       raw: true,
       group: ["customerId"],
@@ -64,27 +66,33 @@ module.exports = {
 
     let statusCash;
     let totalBillAmount = 0;
+    let totalNetWeight = 0;
+    let totaldryWeight = 0;
     await Promise.all(
       cashPaymentEntries.map(async (cashEntry) => {
         console.log(cashEntry);
         (cashEntry.paymentDate = BillingSummaryRecord.billToDate),
-        (cashEntry.paymentType = 1),
-        (cashEntry.paymentNotes = "Bill Generated on ".concat(
-          moment(BillingSummaryRecord.billToDate).format("DD/MM/YYYY")
+          (cashEntry.paymentType = 1),
+          (cashEntry.paymentNotes = "Bill Generated on ".concat(
+            moment(BillingSummaryRecord.billToDate).format("DD/MM/YYYY")
           ));
-          statusCash = await db.CashPayment.create(cashEntry);
-          totalBillAmount +=  cashEntry.totalAmount
+        statusCash = await db.CashPayment.upsert(cashEntry);
+        totalBillAmount += cashEntry.totalAmount;
+        totaldryWeight += cashEntry.dryWeight;
+        totalNetWeight += cashEntry.netWeight;
       })
     );
     BillingSummaryRecord.numberOfBills = cashPaymentEntries.length;
     BillingSummaryRecord.totalBillAmount = totalBillAmount;
+    BillingSummaryRecord.totaldryWeight = totaldryWeight;
+    BillingSummaryRecord.totalNetWeight = totalNetWeight;
 
-    let statusBillSummary = await db.BillingSummary.create(
+    let statusBillSummary = await db.BillingSummary.upsert(
       BillingSummaryRecord
     );
     if (statusBillSummary) {
       console.log(BillingSummaryRecord);
-      res.set("Access-Control-Allow-Origin", "*"), res.json("Success");
+      res.set("Access-Control-Allow-Origin", "*"), res.json(BillingSummaryRecord);
     } else {
       res.status(422);
     }
