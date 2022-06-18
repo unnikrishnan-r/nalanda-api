@@ -3,10 +3,11 @@ var Sequelize = require("sequelize");
 var moment = require("moment");
 
 const Op = Sequelize.Op;
-
+const path = require("path");
 const fs = require("fs");
 const PDFDocument = require("pdfkit-table");
-
+const { env } = require("process");
+const uploadAPI = require("./uploadController")
 async function calculateTotalLatexLine(latexData) {
   let totalLatexLine = {};
   var totalLatexAmount = 0;
@@ -179,13 +180,12 @@ async function createPdf(req, res) {
     .text("FOR NALANDA ASSOCIATES", { align: "right" });
 
   let filePath = "./";
-  let fileCustId = req.customerDetails.customerId;
-  let fileCustName = req.customerDetails.customerName;
+  let fileCustId = req.customerDetails.customerId.toLocaleString();
   let dateComponent = moment(req.billingDate).format("DDMMYYYY");
   let fileExtension = ".pdf";
-  let fullFilePath = filePath.concat(fileCustId,"_",fileCustName,"_", dateComponent,"_", fileExtension);
-  console.log(fullFilePath);
-  // doc.pipe(fs.createWriteStream("./document.pdf"));
+  let fileName = fileCustId.concat("_", dateComponent, fileExtension);
+  let fullFilePath = filePath.concat(fileName);
+  console.log(fileName);
   doc.pipe(fs.createWriteStream(fullFilePath));
 
   doc.pipe(res);
