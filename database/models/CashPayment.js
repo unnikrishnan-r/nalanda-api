@@ -2,12 +2,6 @@ module.exports = function (sequelize, DataTypes) {
   var CashPayment = sequelize.define(
     "CashPayment",
     {
-      seqNumber: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        allowNull: false,
-        primaryKey: true,
-      },
       customerId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -40,9 +34,9 @@ module.exports = function (sequelize, DataTypes) {
     }
   );
 
-  CashPayment.associate = function(models) {
+  CashPayment.associate = function (models) {
     models.CashPayment.belongsTo(models.Customer, {
-      foreignKey: "customerId"
+      foreignKey: "customerId",
     });
   };
 

@@ -37,6 +37,7 @@ module.exports = {
         entry.dataValues.unitRatePerKg = BillingSummaryRecord.unitRatePerKg;
         entry.dataValues.totalAmount =
           entry.dataValues.dryWeight * BillingSummaryRecord.unitRatePerKg;
+          entry.dataValues.paymentStatus = 1 //Update payment status to "Billed"
         let statusLatex = await db.LatexCollection.update(entry.dataValues, {
           where: {
             seqNumber: parseInt(entry.seqNumber),
@@ -72,7 +73,7 @@ module.exports = {
       cashPaymentEntries.map(async (cashEntry) => {
         console.log(cashEntry);
         (cashEntry.paymentDate = BillingSummaryRecord.billToDate),
-          (cashEntry.paymentType = 1),
+          (cashEntry.paymentType = 0                                                  ),
           (cashEntry.paymentNotes = "Bill Generated on ".concat(
             moment(BillingSummaryRecord.billToDate).format("DD/MM/YYYY")
           ));

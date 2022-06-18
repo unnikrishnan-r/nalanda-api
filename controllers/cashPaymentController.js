@@ -28,7 +28,6 @@ module.exports = {
     db.CashPayment.findOne({
       include: [{ model: db.Customer, attributes: ["customerName"] }],
       where: {
-        seqNumber: parseInt(req.query.seqNumber),
         customerId: parseInt(req.query.customerId),
       },
     })

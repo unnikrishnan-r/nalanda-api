@@ -82,23 +82,23 @@ async function createCashPaymentTable(cashPaymentData) {
   let creditTotal = 0;
   cashPaymentData.forEach((payment, index) => {
     balanceTotal +=
-      payment.paymentType == "0"
+      payment.paymentType == "1"
         ? -1 * payment.totalAmount
         : payment.totalAmount;
 
-    debitTotal += payment.paymentType == "0" ? payment.totalAmount : 0;
-    creditTotal += payment.paymentType == "1" ? payment.totalAmount : 0;
+    debitTotal += payment.paymentType == "1" ? payment.totalAmount : 0;
+    creditTotal += payment.paymentType == "0" ? payment.totalAmount : 0;
 
     cashPaymentTableJson.datas.push({
       slno: index + 1,
       date: moment(payment.paymentDate).format("DD/MM/YYYY"),
       notes: payment.paymentNotes,
       debitAmount:
-        payment.paymentType == "0"
+        payment.paymentType == "1"
           ? payment.totalAmount.toLocaleString("en-IN")
           : "",
       creditAmount:
-        payment.paymentType == "1"
+        payment.paymentType == "0"
           ? payment.totalAmount.toLocaleString("en-IN")
           : "",
       balance: balanceTotal.toLocaleString("en-IN"),
@@ -179,10 +179,11 @@ async function createPdf(req, res) {
     .text("FOR NALANDA ASSOCIATES", { align: "right" });
 
   let filePath = "./";
-  let fileName = req.customerDetails.customerName;
-  let dateComponent = moment().format("MMDDYYYY");
+  let fileCustId = req.customerDetails.customerId;
+  let fileCustName = req.customerDetails.customerName;
+  let dateComponent = moment(req.billingDate).format("DDMMYYYY");
   let fileExtension = ".pdf";
-  let fullFilePath = filePath.concat(fileName, dateComponent, fileExtension);
+  let fullFilePath = filePath.concat(fileCustId,"_",fileCustName,"_", dateComponent,"_", fileExtension);
   console.log(fullFilePath);
   // doc.pipe(fs.createWriteStream("./document.pdf"));
   doc.pipe(fs.createWriteStream(fullFilePath));
@@ -195,14 +196,15 @@ async function createPdf(req, res) {
 
 module.exports = {
   generateInvoiceForCustomer: async function (req, res) {
+    let billingDate = req.body.billToDate;
     let customerObject = await db.Customer.findAll({
       include: [
         {
           model: db.CashPayment,
           where: {
             paymentDate: {
-              [Op.gte]: req.body.billFromDate,
-              [Op.lte]: req.body.billToDate,
+              [Op.gte]: moment(req.body.billFromDate).format("MM/DD/YYYY"),
+              [Op.lte]: moment(req.body.billToDate).format("MM/DD/YYYY"),
             },
           },
         },
@@ -210,8 +212,8 @@ module.exports = {
           model: db.LatexCollection,
           where: {
             collectionDate: {
-              [Op.gte]: req.body.billFromDate,
-              [Op.lte]: req.body.billToDate,
+              [Op.gte]: moment(req.body.billFromDate).format("MM/DD/YYYY"),
+              [Op.lte]: moment(req.body.billToDate).format("MM/DD/YYYY"),
             },
           },
         },
@@ -228,7 +230,12 @@ module.exports = {
           customerDetails.CashPayments
         );
         createPdf(
-          { customerDetails, latexTableJson, cashPaymentTableJson },
+          {
+            customerDetails,
+            latexTableJson,
+            cashPaymentTableJson,
+            billingDate,
+          },
           res
         );
       });
