@@ -5,8 +5,18 @@ module.exports = {
     db.BillingSummary.findAll({
       order: [["billPeriod", "DESC"]],
     })
-      .then((dbModel) => res.json(dbModel))
-      // .catch((err) => res.status(422).json(err));
+      .then(
+        (dbModel) => (
+          res.set({
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers":
+              "Origin, X-Requested-With, Content-Type, Accept",
+            "Content-Type": "application/json",
+          }),
+          res.json(dbModel)
+        )
+      )
       .catch((err) => {
         console.log(err.parent);
         res.status(400).json(err);
@@ -29,5 +39,15 @@ module.exports = {
     })
       .then((dbModel) => res.json(dbModel))
       .catch((err) => res.status(422).json(err));
+  },
+  options: function (req, res) {
+    res.set({
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "*",
+      "Access-Control-Allow-Headers":
+        "Origin, X-Requested-With, Content-Type, Accept",
+      "Content-Type": "application/json",
+    }),
+      res.json();
   },
 };
