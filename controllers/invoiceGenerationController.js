@@ -7,7 +7,7 @@ const path = require("path");
 const fs = require("fs");
 const PDFDocument = require("pdfkit-table");
 const { env } = require("process");
-const uploadAPI = require("./uploadController")
+const uploadAPI = require("./uploadController");
 async function calculateTotalLatexLine(latexData) {
   let totalLatexLine = {};
   var totalLatexAmount = 0;
@@ -31,7 +31,7 @@ async function calculateTotalLatexLine(latexData) {
     drc: "",
     dryWt: totalDryWeight.toLocaleString("en-IN"),
     rate: "",
-    amount: totalLatexAmount.toLocaleString("en-IN"),
+    amount: totalLatexAmount,
   };
   return totalLatexLine;
 }
@@ -102,7 +102,7 @@ async function createCashPaymentTable(cashPaymentData) {
         payment.paymentType == "0"
           ? payment.totalAmount.toLocaleString("en-IN")
           : "",
-      balance: balanceTotal.toLocaleString("en-IN"),
+      balance: balanceTotal,
     });
   });
   cashPaymentTableJson.datas.push({
@@ -111,7 +111,7 @@ async function createCashPaymentTable(cashPaymentData) {
     notes: "",
     debitAmount: debitTotal.toLocaleString("en-IN"),
     creditAmount: creditTotal.toLocaleString("en-IN"),
-    balance: balanceTotal.toLocaleString("en-IN"),
+    balance: balanceTotal,
   });
   return cashPaymentTableJson;
 }
@@ -168,10 +168,22 @@ async function createPdf(req, res) {
   doc
     .font("Courier-Bold")
     .fontSize(10)
-    .text("LEDGER STATEMENT", { align: "left", underline: true });
+    .text("CASH PAYMENT STATEMENT", { align: "left", underline: true });
   doc.moveDown(); // separate tables
 
   doc.table(req.cashPaymentTableJson, { width: 300 }); // A4 595.28 x 841.89 (portrait) (about width sizes)
+
+  doc.moveDown(2); // separate tables
+
+  doc
+    .font("Courier-Bold")
+    .fontSize(15)
+    .text(
+      `TOTAL DUE AMOUNT       : ${req.totalDueAmount.toLocaleString("en-IN")}`,
+      {
+        align: "center",
+      }
+    );
   doc.moveDown(5); // separate tables
 
   doc
@@ -201,6 +213,7 @@ module.exports = {
       include: [
         {
           model: db.CashPayment,
+          required: false,
           where: {
             paymentDate: {
               [Op.gte]: moment(req.body.billFromDate).format("MM/DD/YYYY"),
@@ -229,12 +242,21 @@ module.exports = {
         let cashPaymentTableJson = await createCashPaymentTable(
           customerDetails.CashPayments
         );
+        let totalDueAmount =
+          parseFloat(
+            latexTableJson.datas[latexTableJson.datas.length - 1].amount
+          ) +
+          parseFloat(
+            cashPaymentTableJson.datas[cashPaymentTableJson.datas.length - 1]
+              .balance
+          );
         createPdf(
           {
             customerDetails,
             latexTableJson,
             cashPaymentTableJson,
             billingDate,
+            totalDueAmount,
           },
           res
         );
