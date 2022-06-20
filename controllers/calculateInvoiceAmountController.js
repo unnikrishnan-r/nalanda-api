@@ -119,11 +119,11 @@ module.exports = {
         }
         (generatedBillRecord.paymentDate = moment(
           BillingSummaryRecord.billToDate
-        ).add(1, "days")),
+        ).add(2, "days")),
           (generatedBillRecord.paymentType = 0),
           (generatedBillRecord.paymentNotes = "Bill Generated on ".concat(
             moment(BillingSummaryRecord.billToDate)
-              .add(1, "days")
+              .add(2, "days")
               .format("DD/MM/YYYY")
           ));
         console.log(generatedBillRecord);
