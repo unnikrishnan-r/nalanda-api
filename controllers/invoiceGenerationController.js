@@ -102,16 +102,16 @@ async function createCashPaymentTable(cashPaymentData) {
         payment.paymentType == "0"
           ? payment.totalAmount.toLocaleString("en-IN")
           : "",
-      balance: balanceTotal,
+      balance: parseFloat(balanceTotal).toFixed(2).toLocaleString("en-IN"),
     });
   });
   cashPaymentTableJson.datas.push({
     slno: "bold:Total",
     date: "",
     notes: "",
-    debitAmount: debitTotal.toLocaleString("en-IN"),
-    creditAmount: creditTotal.toLocaleString("en-IN"),
-    balance: balanceTotal,
+    debitAmount: parseFloat(debitTotal).toFixed(2).toLocaleString("en-IN"),
+    creditAmount: parseFloat(creditTotal).toFixed(2).toLocaleString("en-IN"),
+    balance: parseFloat(balanceTotal).toFixed(2).toLocaleString("en-IN")
   });
   return cashPaymentTableJson;
 }
