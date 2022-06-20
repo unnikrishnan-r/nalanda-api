@@ -71,10 +71,11 @@ module.exports = {
     let cashSummary = await db.CashPayment.findAll({
       attributes: [
         "customerId",
+        "paymentType",
         [Sequelize.fn("SUM", Sequelize.col("totalAmount")), "totalCashAmount"],
       ],
       raw: true,
-      group: ["customerId"],
+      group: ["customerId", "paymentType"],
       where: {
         paymentDate: {
           [Op.gte]: BillingSummaryRecord.billFromDate,
@@ -82,6 +83,8 @@ module.exports = {
         },
       },
     });
+
+    console.log(cashSummary);
 
     await Promise.all(
       latexSummary.map(async (customerSum) => {
@@ -91,8 +94,19 @@ module.exports = {
         {
           cashSummary.find(
             (element) =>
-              (generatedBillRecord.totalCashAmount =
-                element.customerId === customerSum.customerId
+              (generatedBillRecord.totalCashCreditAmount =
+                element.customerId === customerSum.customerId &&
+                element.paymentType === '0'
+                  ? element.totalCashAmount
+                  : 0)
+          );
+        }
+        {
+          cashSummary.find(
+            (element) =>
+              (generatedBillRecord.totalCashDebitAmount =
+                element.customerId === customerSum.customerId &&
+                element.paymentType === '1'
                   ? element.totalCashAmount
                   : 0)
           );
@@ -100,7 +114,8 @@ module.exports = {
         {
           generatedBillRecord.totalAmount =
             generatedBillRecord.totalLatexAmount -
-            generatedBillRecord.totalCashAmount;
+            (generatedBillRecord.totalCashDebitAmount -
+              generatedBillRecord.totalCashCreditAmount);
         }
         (generatedBillRecord.paymentDate = moment(
           BillingSummaryRecord.billToDate
@@ -119,7 +134,7 @@ module.exports = {
       })
     );
     BillingSummaryRecord.numberOfBills = latexSummary.length;
-    BillingSummaryRecord.totalBillAmount = totalBillAmount
+    BillingSummaryRecord.totalBillAmount = totalBillAmount;
     BillingSummaryRecord.totaldryWeight = totaldryWeight;
     BillingSummaryRecord.totalNetWeight = totalNetWeight;
 
