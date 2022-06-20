@@ -14,10 +14,12 @@ module.exports = function (sequelize, DataTypes) {
         type: DataTypes.INTEGER,
         allowNull: false,
         primaryKey: true,
-        references: {
-          model: "Customer",
-          key: "customerId",
-        },
+        references: 
+          {
+            model: "Customer",
+            key: "customerId",
+          }
+        ,
       },
       collectionDate: {
         type: DataTypes.DATE,
@@ -52,23 +54,22 @@ module.exports = function (sequelize, DataTypes) {
         type: DataTypes.FLOAT(7, 2),
         allowNull: true,
       },
-      totalAmount:{
+      totalAmount: {
         type: DataTypes.FLOAT(9, 2),
         allowNull: true,
       },
-      paymentStatus:{
+      paymentStatus: {
         type: DataTypes.BOOLEAN,
-        defaultValue: false
-      }
+        defaultValue: false,
+      },
     },
     {
       tableName: "LatexCollection",
     }
   );
-
-  LatexCollection.associate = function(models) {
-    models.LatexCollection.belongsTo(models.Customer, {
-      foreignKey: "customerId"
+  LatexCollection.associate = function (models) {
+    models.LatexCollection.hasMany(models.CashPayment, {
+      foreignKey: "customerId",
     });
   };
 
