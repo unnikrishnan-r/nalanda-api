@@ -71,6 +71,11 @@ module.exports = function (sequelize, DataTypes) {
     models.LatexCollection.hasMany(models.CashPayment, {
       foreignKey: "customerId",
     });
+
+    models.LatexCollection.belongsTo(models.Customer, {
+      foreignKey: "customerId",
+    });
+
   };
 
   return LatexCollection;
