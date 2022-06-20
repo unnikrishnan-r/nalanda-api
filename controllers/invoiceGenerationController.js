@@ -31,7 +31,7 @@ async function calculateTotalLatexLine(latexData) {
     drc: "",
     dryWt: totalDryWeight.toLocaleString("en-IN"),
     rate: "",
-    amount: totalLatexAmount,
+    amount: parseFloat(totalLatexAmount).toFixed(2).toLocaleString("en-IN"),
   };
   return totalLatexLine;
 }
@@ -54,13 +54,13 @@ async function createLatexTable(latexData) {
     latexTableJson.datas.push({
       slno: index + 1,
       date: moment(collection.collectionDate).format("DD/MM/YYYY"),
-      grossWt: collection.grossWeight,
+      grossWt: parseFloat(collection.grossWeight).toFixed(2).toLocaleString("en-IN"),
       barrelWt: collection.tareWeight,
-      netWt: collection.netWeight,
-      drc: collection.drcPercent,
-      dryWt: collection.dryWeight,
-      rate: collection.unitRatePerKg,
-      amount: collection.totalAmount.toLocaleString("en-IN"),
+      netWt: parseFloat(collection.netWeight).toFixed(2).toLocaleString("en-IN"),
+      drc: parseFloat(collection.drcPercent).toFixed(2).toLocaleString("en-IN"),
+      dryWt: parseFloat(collection.dryWeight).toFixed(2).toLocaleString("en-IN"),
+      rate: parseFloat(collection.unitRatePerKg).toFixed(2).toLocaleString("en-IN"),
+      amount: (parseFloat(collection.totalAmount).toFixed(2)).toLocaleString("en-IN"),
     });
   });
   latexTableJson.datas.push(await calculateTotalLatexLine(latexData));
@@ -168,7 +168,7 @@ async function createPdf(req, res) {
   doc
     .font("Courier-Bold")
     .fontSize(10)
-    .text("CASH PAYMENT STATEMENT", { align: "left", underline: true });
+    .text("LEDGER STATEMENT", { align: "left", underline: true });
   doc.moveDown(); // separate tables
 
   doc.table(req.cashPaymentTableJson, { width: 300 }); // A4 595.28 x 841.89 (portrait) (about width sizes)
