@@ -54,13 +54,23 @@ async function createLatexTable(latexData) {
     latexTableJson.datas.push({
       slno: index + 1,
       date: moment(collection.collectionDate).format("DD/MM/YYYY"),
-      grossWt: parseFloat(collection.grossWeight).toFixed(2).toLocaleString("en-IN"),
+      grossWt: parseFloat(collection.grossWeight)
+        .toFixed(2)
+        .toLocaleString("en-IN"),
       barrelWt: collection.tareWeight,
-      netWt: parseFloat(collection.netWeight).toFixed(2).toLocaleString("en-IN"),
+      netWt: parseFloat(collection.netWeight)
+        .toFixed(2)
+        .toLocaleString("en-IN"),
       drc: parseFloat(collection.drcPercent).toFixed(2).toLocaleString("en-IN"),
-      dryWt: parseFloat(collection.dryWeight).toFixed(2).toLocaleString("en-IN"),
-      rate: parseFloat(collection.unitRatePerKg).toFixed(2).toLocaleString("en-IN"),
-      amount: (parseFloat(collection.totalAmount).toFixed(2)).toLocaleString("en-IN"),
+      dryWt: parseFloat(collection.dryWeight)
+        .toFixed(2)
+        .toLocaleString("en-IN"),
+      rate: parseFloat(collection.unitRatePerKg)
+        .toFixed(2)
+        .toLocaleString("en-IN"),
+      amount: parseFloat(collection.totalAmount)
+        .toFixed(2)
+        .toLocaleString("en-IN"),
     });
   });
   latexTableJson.datas.push(await calculateTotalLatexLine(latexData));
@@ -111,7 +121,7 @@ async function createCashPaymentTable(cashPaymentData) {
     notes: "",
     debitAmount: parseFloat(debitTotal).toFixed(2).toLocaleString("en-IN"),
     creditAmount: parseFloat(creditTotal).toFixed(2).toLocaleString("en-IN"),
-    balance: parseFloat(balanceTotal).toFixed(2).toLocaleString("en-IN")
+    balance: parseFloat(balanceTotal).toFixed(2).toLocaleString("en-IN"),
   });
   return cashPaymentTableJson;
 }
@@ -191,13 +201,18 @@ async function createPdf(req, res) {
     .fontSize(10)
     .text("FOR NALANDA ASSOCIATES", { align: "right" });
 
-  let filePath = "./";
+  let filePath = "./Inv_" + moment(req.billingDate).format("DDMMYYYY") + "/";
   let fileCustId = req.customerDetails.customerId.toLocaleString();
   let dateComponent = moment(req.billingDate).format("DDMMYYYY");
   let fileExtension = ".pdf";
   let fileName = fileCustId.concat("_", dateComponent, fileExtension);
   let fullFilePath = filePath.concat(fileName);
-  console.log(fileName);
+  console.log(filePath, fileName);
+
+  if (!fs.existsSync(filePath)) {
+    console.log("Making folder");
+    fs.mkdirSync(filePath);
+  }
   doc.pipe(fs.createWriteStream(fullFilePath));
 
   doc.pipe(res);
