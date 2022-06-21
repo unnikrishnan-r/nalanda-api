@@ -6,6 +6,7 @@ const billingSummaryRoute = require("./billingSummaryApi");
 const invoiceGenerationRoute = require("./invoiceGenerationApi");
 const calculateInvoiceAmountRoute = require("./calculateInvoiceAmountApi")
 const uploadRoute = require("./uploadApi")
+const printRoute = require("./printApi")
 
 console.log("test");
 router.use("/newcustomer", newCustomerRoute);
@@ -15,5 +16,6 @@ router.use("/billingSummary", billingSummaryRoute);
 router.use("/invoiceGeneration", invoiceGenerationRoute);
 router.use("/calculateInvoiceAmount", calculateInvoiceAmountRoute)
 router.use("/upload", uploadRoute)
+router.use("/print", printRoute)
 
 module.exports = router;
