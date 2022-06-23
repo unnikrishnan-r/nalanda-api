@@ -7,6 +7,7 @@ console.log("invoice generation api");
 
 router
   .route("/generateInvoiceForCustomer")
-  .put(invoiceGenerationController.generateInvoiceForCustomer);
+  .put(invoiceGenerationController.generateInvoiceForCustomer)
+  .options(invoiceGenerationController.options);
 
 module.exports = router;

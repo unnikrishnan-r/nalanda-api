@@ -215,7 +215,7 @@ async function createPdf(req, res) {
   }
   doc.pipe(fs.createWriteStream(fullFilePath));
 
-  doc.pipe(res);
+  // doc.pipe(res.status(200).json(fullFilePath));
 
   // done
   doc.end();
@@ -248,34 +248,50 @@ module.exports = {
       ],
     });
     if (customerObject) {
-      customerObject.forEach(async (customerObject) => {
-        let customerDetails;
-        customerDetails = customerObject.dataValues;
-        let latexTableJson = await createLatexTable(
-          customerDetails.LatexCollections
-        );
-        let cashPaymentTableJson = await createCashPaymentTable(
-          customerDetails.CashPayments
-        );
-        let totalDueAmount =
-          parseFloat(
-            latexTableJson.datas[latexTableJson.datas.length - 1].amount
-          ) +
-          parseFloat(
-            cashPaymentTableJson.datas[cashPaymentTableJson.datas.length - 1]
-              .balance
+      console.log(customerObject.length)
+      await Promise.all(
+        customerObject.map(async (customerObject) => {
+          console.log("Iteration")
+          let customerDetails;
+          customerDetails = customerObject.dataValues;
+          let latexTableJson = await createLatexTable(
+            customerDetails.LatexCollections
           );
-        createPdf(
-          {
-            customerDetails,
-            latexTableJson,
-            cashPaymentTableJson,
-            billingDate,
-            totalDueAmount,
-          },
-          res
-        );
-      });
+          let cashPaymentTableJson = await createCashPaymentTable(
+            customerDetails.CashPayments
+          );
+          let totalDueAmount =
+            parseFloat(
+              latexTableJson.datas[latexTableJson.datas.length - 1].amount
+            ) +
+            parseFloat(
+              cashPaymentTableJson.datas[cashPaymentTableJson.datas.length - 1]
+                .balance
+            );
+          createPdf(
+            {
+              customerDetails,
+              latexTableJson,
+              cashPaymentTableJson,
+              billingDate,
+              totalDueAmount,
+            },
+            res
+          );
+        })
+      );
     }
+    res.set("Access-Control-Allow-Origin", "*"),
+        res.status(200).json("Invoices Generated");
+  },
+  options: function (req, res) {
+    res.set({
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "*",
+      "Access-Control-Allow-Headers":
+        "Origin, X-Requested-With, Content-Type, Accept",
+      "Content-Type": "application/json",
+    }),
+      res.json();
   },
 };
