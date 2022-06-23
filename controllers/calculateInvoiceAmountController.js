@@ -79,6 +79,8 @@ module.exports = {
       },
     });
 
+    console.log(latexSummary);
+
     console.log(cashSummary);
 
     await Promise.all(
@@ -86,6 +88,8 @@ module.exports = {
         let generatedBillRecord = {};
         generatedBillRecord.customerId = customerSum.customerId;
         generatedBillRecord.totalLatexAmount = customerSum.totalLatexAmount;
+        generatedBillRecord.totalCashCreditAmount = 0
+        generatedBillRecord.totalCashDebitAmount = 0
         {
           cashSummary.find(
             (element) =>
@@ -106,6 +110,7 @@ module.exports = {
                   : 0)
           );
         }
+        console.log("Cash Amounts", generatedBillRecord.totalCashCreditAmount, generatedBillRecord.totalCashDebitAmount)
         {
           generatedBillRecord.totalAmount =
             generatedBillRecord.totalLatexAmount -
