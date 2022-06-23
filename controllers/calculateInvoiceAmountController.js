@@ -18,8 +18,7 @@ module.exports = {
         .concat(moment(req.body.billToDate).format("MM")),
       billDate: moment(req.body.billToDate).format(),
       billToDate: req.body.billToDate,
-      billFromDate: req.body.billFromDate,
-      unitRatePerKg: req.body.unitRatePerKg,
+      billFromDate: req.body.billFromDate
     };
     console.log(BillingSummaryRecord);
 
@@ -33,13 +32,10 @@ module.exports = {
       },
     });
 
-    //Calculate and update invoice amount for each latex entry
+    //Calculate and update payment status for each latex entry
     //Refer https://gist.github.com/joeytwiddle/37d2085425c049629b80956d3c618971 to see why forEach would not work here
     await Promise.all(
       latexEntries.map(async (entry) => {
-        entry.dataValues.unitRatePerKg = BillingSummaryRecord.unitRatePerKg;
-        entry.dataValues.totalAmount =
-          entry.dataValues.dryWeight * BillingSummaryRecord.unitRatePerKg;
         entry.dataValues.paymentStatus = 1; //Update payment status to "Billed"
         let statusLatex = await db.LatexCollection.update(entry.dataValues, {
           where: {
@@ -51,7 +47,6 @@ module.exports = {
     );
 
     //Make Bill Generation Entries by customer
-    console.log("2nd query");
     let latexSummary = await db.LatexCollection.findAll({
       attributes: [
         "customerId",
@@ -137,6 +132,7 @@ module.exports = {
     BillingSummaryRecord.totalBillAmount = totalBillAmount;
     BillingSummaryRecord.totaldryWeight = totaldryWeight;
     BillingSummaryRecord.totalNetWeight = totalNetWeight;
+    BillingSummaryRecord.unitRatePerKg = parseFloat(totalBillAmount/totaldryWeight).toFixed(2)
 
     let statusBillSummary = await db.BillingSummary.upsert(
       BillingSummaryRecord
