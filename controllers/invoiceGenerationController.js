@@ -201,19 +201,12 @@ async function createPdf(req, res) {
     .fontSize(10)
     .text("FOR NALANDA ASSOCIATES", { align: "right" });
 
-  let filePath = "./Inv_" + moment(req.billingDate).format("DDMMYYYY") + "/";
-  let fileCustId = req.customerDetails.customerId.toLocaleString();
-  let dateComponent = moment(req.billingDate).format("DDMMYYYY");
-  let fileExtension = ".pdf";
-  let fileName = fileCustId.concat("_", dateComponent, fileExtension);
-  let fullFilePath = filePath.concat(fileName);
-  console.log(filePath, fileName);
-
-  if (!fs.existsSync(filePath)) {
+  console.log(req.fullFilePath, req.filePath)  
+  if (!fs.existsSync(req.filePath)) {
     console.log("Making folder");
-    fs.mkdirSync(filePath);
+    fs.mkdirSync(req.filePath);
   }
-  doc.pipe(fs.createWriteStream(fullFilePath));
+  doc.pipe(fs.createWriteStream(req.fullFilePath));
 
   // doc.pipe(res.status(200).json(fullFilePath));
 
@@ -224,6 +217,7 @@ async function createPdf(req, res) {
 module.exports = {
   generateInvoiceForCustomer: async function (req, res) {
     let billingDate = req.body.billToDate;
+    let generatedInvoices = [];
     let customerObject = await db.Customer.findAll({
       include: [
         {
@@ -248,10 +242,10 @@ module.exports = {
       ],
     });
     if (customerObject) {
-      console.log(customerObject.length)
+      console.log(customerObject.length);
       await Promise.all(
         customerObject.map(async (customerObject) => {
-          console.log("Iteration")
+          console.log("Iteration");
           let customerDetails;
           customerDetails = customerObject.dataValues;
           let latexTableJson = await createLatexTable(
@@ -268,6 +262,15 @@ module.exports = {
               cashPaymentTableJson.datas[cashPaymentTableJson.datas.length - 1]
                 .balance
             );
+          let filePath =
+            "./Inv_" + moment(billingDate).format("DDMMYYYY") + "/";
+          let fileCustId = customerDetails.customerId.toLocaleString();
+          let dateComponent = moment(billingDate).format("DDMMYYYY");
+          let fileExtension = ".pdf";
+          let fileName = fileCustId.concat("_", dateComponent, fileExtension);
+          let fullFilePath = filePath.concat(fileName);
+          console.log(filePath, fullFilePath);
+
           createPdf(
             {
               customerDetails,
@@ -275,14 +278,16 @@ module.exports = {
               cashPaymentTableJson,
               billingDate,
               totalDueAmount,
+              fullFilePath,
+              filePath
             },
             res
-          );
+          ).then((res) => generatedInvoices.push(fullFilePath));
         })
       );
     }
     res.set("Access-Control-Allow-Origin", "*"),
-        res.status(200).json("Invoices Generated");
+      res.status(200).json(generatedInvoices);
   },
   options: function (req, res) {
     res.set({
