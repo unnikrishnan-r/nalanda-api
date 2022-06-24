@@ -17,11 +17,10 @@ module.exports = {
         res.status(400).json(err);
       });
   },
-  findSpecificColletion: function (req, res) {
-    db.LatexCollection.findOne({
+  getLatexEntriesPerCustomer: function (req, res) {
+    db.LatexCollection.findAll({
       include: [{ model: db.Customer, attributes: ["customerName"] }],
       where: {
-        seqNumber: parseInt(req.query.seqNumber),
         customerId: parseInt(req.query.customerId),
       },
     })

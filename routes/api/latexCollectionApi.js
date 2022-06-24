@@ -12,7 +12,7 @@ router
 
 router
   .route("/key")
-  .get(latextCollectionController.findSpecificColletion)
+  .get(latextCollectionController.getLatexEntriesPerCustomer)
   .put(latextCollectionController.updateSpecificColletion)
   .options(latextCollectionController.options)
 
