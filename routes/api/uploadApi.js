@@ -5,5 +5,6 @@ const uploadController = require("../../controllers/uploadController");
 router
   .route("/")
   .post(uploadController.upload)
+  .options(uploadController.options);
 
 module.exports = router;
