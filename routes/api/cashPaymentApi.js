@@ -10,7 +10,7 @@ router
 
 router
   .route("/key")
-  .get(cashPaymentController.findSpecificPayment)
+  .get(cashPaymentController.getCashPaymentsPerCustomer)
   .put(cashPaymentController.updateSpecificPayment)
   .options(cashPaymentController.options);
 

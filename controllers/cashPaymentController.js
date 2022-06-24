@@ -24,8 +24,8 @@ module.exports = {
         res.status(400).json(err);
       });
   },
-  findSpecificPayment: function (req, res) {
-    db.CashPayment.findOne({
+  getCashPaymentsPerCustomer: function (req, res) {
+    db.CashPayment.findAll({
       include: [{ model: db.Customer, attributes: ["customerName"] }],
       where: {
         customerId: parseInt(req.query.customerId),
