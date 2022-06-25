@@ -201,7 +201,7 @@ async function createPdf(req, res) {
     .fontSize(10)
     .text("FOR NALANDA ASSOCIATES", { align: "right" });
 
-  console.log(req.fullFilePath, req.filePath)  
+  console.log(req.fullFilePath, req.filePath);
   if (!fs.existsSync(req.filePath)) {
     console.log("Making folder");
     fs.mkdirSync(req.filePath);
@@ -270,7 +270,14 @@ module.exports = {
           let fileName = fileCustId.concat("_", dateComponent, fileExtension);
           let fullFilePath = filePath.concat(fileName);
           console.log(filePath, fullFilePath);
-
+          db.Customer.update(
+            { customerBalance: totalDueAmount },
+            {
+              where: { customerId: customerDetails.customerId },
+            }
+          )
+            .then((dbModel) => console.log("Customer Due Amount updated"))
+            .catch((err) => res.status(422).json(err));
           createPdf(
             {
               customerDetails,
@@ -279,7 +286,7 @@ module.exports = {
               billingDate,
               totalDueAmount,
               fullFilePath,
-              filePath
+              filePath,
             },
             res
           ).then((res) => generatedInvoices.push(fullFilePath));
