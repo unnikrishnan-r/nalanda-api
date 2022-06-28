@@ -2,43 +2,30 @@ const aws = require("aws-sdk");
 const s3 = new aws.S3();
 const fs = require("fs");
 
+async function uploadSingleFile(fileName) {
+  console.log(`Beginning to upload - ${fileName.substr(15)}`);
+  const s3PutParams = {
+    Bucket: process.env.S3_BUCKET_NAME,
+    Key: fileName.substr(15),
+    Body: fs.createReadStream(fileName),
+    ACL: "public-read",
+  };
+  const uploadStatus = await s3.upload(s3PutParams).promise();
+  console.log(`File uploaded successfully. ${uploadStatus.Location}`);
+  return uploadStatus.Location;
+}
+
 module.exports = {
-  upload: async function (req, res, next) {
+  upload: async function (req, res) {
     console.log("Inside upload controller");
-    let uploadFile = req.body.file;
-    fs.readFile(uploadFile, (err, uploadedData) => {
-      console.log("read file");
-      if (err) {
-        throw err;
-      }
-      let body = fs.createReadStream(uploadFile);
+    const promises = [];
+    req.body.files.forEach((file) => promises.push(uploadSingleFile(file)));
+    const loopStatus = await Promise.all(promises);
+    console.log("All Uploads Done");
+    console.log(loopStatus);
+    res.set("Access-Control-Allow-Origin", "*"),
+    res.status(200).json(loopStatus);
 
-      const s3PutParams = {
-        Bucket: process.env.S3_BUCKET_NAME,
-        Key: uploadFile.substr(15),
-        Body: body,
-        ACL: "public-read",
-      };
-
-      const s3GetParams = {
-        Bucket: process.env.S3_BUCKET_NAME,
-        Key: uploadFile.substr(15),
-      };
-
-      s3.putObject(s3PutParams, function (err, response) {
-        if (err) {
-          console.error(err);
-        } else {
-          var url = s3.getSignedUrl("getObject", s3GetParams);
-          res.set("Access-Control-Allow-Origin", "*"),
-            res.status(200).json({
-              publicUrl: `https://${
-                process.env.S3_BUCKET_NAME
-              }.s3.amazonaws.com/${uploadFile.substr(15)}`,
-            });
-        }
-      });
-    });
   },
   options: function (req, res) {
     res.set({
