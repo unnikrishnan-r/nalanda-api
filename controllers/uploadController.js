@@ -5,7 +5,10 @@ const fs = require("fs");
 async function uploadSingleFile(fileName) {
   console.log(`Beginning to upload - ${fileName.substr(15)}`);
   const s3PutParams = {
-    Bucket: process.env.S3_BUCKET_NAME,
+    Bucket:
+      process.env.NODE_ENV === "production"
+        ? process.env.S3_BUCKET_NAME
+        : process.env.S3_BUCKET_NAME_STAGING,
     Key: fileName.substr(15),
     Body: fs.createReadStream(fileName),
     ACL: "public-read",
@@ -24,8 +27,7 @@ module.exports = {
     console.log("All Uploads Done");
     console.log(loopStatus);
     res.set("Access-Control-Allow-Origin", "*"),
-    res.status(200).json(loopStatus);
-
+      res.status(200).json(loopStatus);
   },
   options: function (req, res) {
     res.set({
