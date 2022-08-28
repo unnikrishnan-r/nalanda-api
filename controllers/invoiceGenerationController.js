@@ -131,6 +131,9 @@ async function createPdf(req, res) {
   let doc = new PDFDocument({ margin: 30, size: "A4" });
   // to save on server
 
+  doc.moveDown(8); // separate tables
+
+
   doc
     .font("Courier-Bold")
     .fontSize(12)
@@ -174,7 +177,7 @@ async function createPdf(req, res) {
 
   doc.table(req.latexTableJson, { width: 300 }); // A4 595.28 x 841.89 (portrait) (about width sizes)
 
-  doc.moveDown(); // separate tables
+  doc.moveDown(5); // separate tables
   doc
     .font("Courier-Bold")
     .fontSize(10)
@@ -183,7 +186,7 @@ async function createPdf(req, res) {
 
   doc.table(req.cashPaymentTableJson, { width: 300 }); // A4 595.28 x 841.89 (portrait) (about width sizes)
 
-  doc.moveDown(2); // separate tables
+  doc.moveDown(4); // separate tables
 
   doc
     .font("Courier-Bold")
@@ -194,7 +197,7 @@ async function createPdf(req, res) {
         align: "center",
       }
     );
-  doc.moveDown(5); // separate tables
+  doc.moveDown(7); // separate tables
 
   doc
     .font("Courier-Bold")
