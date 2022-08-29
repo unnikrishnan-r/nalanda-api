@@ -7,6 +7,9 @@ var express = require("express");
 var db = require("./database/models");
 
 const routes = require("./routes");
+var session = require("express-session");
+var passport = require("./middleware/passport");
+
 var cors = require('cors');
 
 const app = express();
@@ -21,6 +24,13 @@ if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
 }
 
+// We need to use sessions to keep track of our user's login status
+app.use(
+  session({ secret: "keyboard cat", resave: true, saveUninitialized: true })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Routes
 app.use(routes, cors());
 // CORS header `Access-Control-Allow-Origin` set to accept all
@@ -29,6 +39,7 @@ app.get('/', function(request, response) {
   response.set('Access-Control-Allow-Origin', '*');
   response.sendFile(__dirname + '/message.json');
 });
+
 
 
 var syncOptions = {};

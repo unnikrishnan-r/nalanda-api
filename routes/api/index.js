@@ -8,6 +8,9 @@ const calculateInvoiceAmountRoute = require("./calculateInvoiceAmountApi")
 const applyRateRoute = require("./applyRateApi")
 const uploadRoute = require("./uploadApi")
 const printRoute = require("./printApi")
+const userRoute = require("./userApi");
+const loginRoute = require("./loginApi");
+
 
 console.log("test");
 router.use("/newcustomer", newCustomerRoute);
@@ -19,5 +22,7 @@ router.use("/calculateInvoiceAmount", calculateInvoiceAmountRoute)
 router.use("/applyRate", applyRateRoute)
 router.use("/upload", uploadRoute)
 router.use("/print", printRoute)
+router.use("/user", userRoute);
+router.use("/login", loginRoute);
 
 module.exports = router;
