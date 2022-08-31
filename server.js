@@ -2,15 +2,13 @@ require("dotenv").config();
 var express = require("express");
 // var morgan = require('morgan')
 
-
-
 var db = require("./database/models");
 
 const routes = require("./routes");
 var session = require("express-session");
 var passport = require("./middleware/passport");
 
-var cors = require('cors');
+var cors = require("cors");
 
 const app = express();
 // app.use(morgan('tiny'))
@@ -28,22 +26,27 @@ if (process.env.NODE_ENV === "production") {
 app.use(
   session({ secret: "keyboard cat", resave: true, saveUninitialized: true })
 );
+app.use(
+  cors({
+    origin: '*',
+    methods: "GET, POST, PATCH, DELETE, PUT",
+    allowedHeaders: "Content-Type, Authorization",
+  })
+);
 app.use(passport.initialize());
 app.use(passport.session());
 
 // Routes
 app.use(routes, cors());
 // CORS header `Access-Control-Allow-Origin` set to accept all
-app.get('/', function(request, response) {
-  response.header('Access-Control-Allow-Origin', '*');
-  response.set('Access-Control-Allow-Origin', '*');
-  response.sendFile(__dirname + '/message.json');
+app.get("/", function (request, response) {
+  response.header("Access-Control-Allow-Origin", "*");
+  response.set("Access-Control-Allow-Origin", "*");
+  response.sendFile(__dirname + "/message.json");
 });
 
-
-
 var syncOptions = {};
-console.log(process.env.SYNC_MODEL)
+console.log(process.env.SYNC_MODEL);
 syncOptions.force = process.env.SYNC_MODEL === "true" ? true : false;
 
 // Starting the server, syncing our models ------------------------------------/

@@ -25,7 +25,7 @@ router
       res.json(req.user);
     });
   })
-  .options(userContoller.options);
+  // .options(userContoller.options);
 router.route("/checksession").get(function (req, res) {
   console.log("---------Login checksession " + req.user);
 
