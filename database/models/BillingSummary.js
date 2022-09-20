@@ -2,6 +2,12 @@ module.exports = function (sequelize, DataTypes) {
   var BillingSummay = sequelize.define(
     "BillingSummary",
     {
+      seqNumber: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true,
+      },
       billPeriod: {
         type: DataTypes.INTEGER,
         allowNull: false,
