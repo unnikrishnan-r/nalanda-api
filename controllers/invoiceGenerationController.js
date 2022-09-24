@@ -132,8 +132,6 @@ async function createPdf(req, res) {
   // to save on server
 
   doc.moveDown(8); // separate tables
-
-
   doc
     .font("Courier-Bold")
     .fontSize(12)
@@ -151,6 +149,12 @@ async function createPdf(req, res) {
 
   doc.moveDown(2); // separate tables
 
+  doc
+    .font("Times-Roman")
+    .fontSize(10)
+    .text(req.billNumber, { align: "left", underline: false });
+
+  doc.moveDown(2); // separate tables
   doc
     .font("Courier-Bold")
     .fontSize(10)
@@ -247,8 +251,14 @@ module.exports = {
     if (customerObject) {
       console.log(customerObject.length);
       await Promise.all(
-        customerObject.map(async (customerObject) => {
-          console.log("Iteration");
+        customerObject.map(async (customerObject, index) => {
+          console.log("Iteration" + index + 1);
+          console.log(billingDate)
+          let billNumber =
+            "Bill: " +
+            moment(billingDate).format("DD/MM/YYYY") +
+            "_" +
+            String(index + 1).padStart(3, "0");
           let customerDetails;
           customerDetails = customerObject.dataValues;
           let latexTableJson = await createLatexTable(
@@ -273,6 +283,7 @@ module.exports = {
           let fileName = fileCustId.concat("_", dateComponent, fileExtension);
           let fullFilePath = filePath.concat(fileName);
           console.log(filePath, fullFilePath);
+          console.log(fileCustId, billNumber);
           db.Customer.update(
             { customerBalance: totalDueAmount },
             {
@@ -290,6 +301,7 @@ module.exports = {
               totalDueAmount,
               fullFilePath,
               filePath,
+              billNumber,
             },
             res
           ).then((res) => generatedInvoices.push(fullFilePath));
