@@ -257,7 +257,7 @@ module.exports = {
           let billNumber =
             "Bill: " +
             moment(billingDate).format("DD/MM/YYYY") +
-            "_" +
+            "-" +
             String(index + 1).padStart(3, "0");
           let customerDetails;
           customerDetails = customerObject.dataValues;
