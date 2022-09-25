@@ -10,6 +10,8 @@ const uploadRoute = require("./uploadApi")
 const printRoute = require("./printApi")
 const userRoute = require("./userApi");
 const loginRoute = require("./loginApi");
+const netdueCalcRoute = require("./netdueCalcApi");
+
 
 
 console.log("test");
@@ -24,5 +26,6 @@ router.use("/upload", uploadRoute)
 router.use("/print", printRoute)
 router.use("/user", userRoute);
 router.use("/login", loginRoute);
+router.use("/netdueCalc", netdueCalcRoute);
 
 module.exports = router;
