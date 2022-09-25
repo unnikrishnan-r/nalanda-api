@@ -77,7 +77,9 @@ async function createLatexTable(latexData) {
   return latexTableJson;
 }
 
-async function createCashPaymentTable(cashPaymentData) {
+async function createCashPaymentTable(cashPaymentData, customerBalance) {
+  console.log(customerBalance)
+  console.log(cashPaymentData)
   let cashPaymentTableJson = {};
   cashPaymentTableJson.headers = [
     { label: "Sl No", property: "slno", width: 50 },
@@ -91,6 +93,17 @@ async function createCashPaymentTable(cashPaymentData) {
   let balanceTotal = 0;
   let debitTotal = 0;
   let creditTotal = 0;
+  balanceTotal += customerBalance;
+  debitTotal += customerBalance < 0 ? -1 * customerBalance : 0;
+  creditTotal += customerBalance > 0 ? customerBalance : 0;
+
+  cashPaymentTableJson.datas.push({
+    slno: 1,
+    date: "",
+    notes: "Opening Balance",
+    debitAmount: customerBalance < 0 ? -1 * customerBalance : 0,
+    creditAmount: customerBalance > 0 ? customerBalance : 0,
+  });
   cashPaymentData.forEach((payment, index) => {
     balanceTotal +=
       payment.paymentType == "1"
@@ -101,7 +114,7 @@ async function createCashPaymentTable(cashPaymentData) {
     creditTotal += payment.paymentType == "0" ? payment.totalAmount : 0;
 
     cashPaymentTableJson.datas.push({
-      slno: index + 1,
+      slno: index + 2,
       date: moment(payment.paymentDate).format("DD/MM/YYYY"),
       notes: payment.paymentNotes,
       debitAmount:
@@ -252,8 +265,8 @@ module.exports = {
       console.log(customerObject.length);
       await Promise.all(
         customerObject.map(async (customerObject, index) => {
-          console.log("Iteration" + index + 1);
-          console.log(billingDate)
+          // console.log("Iteration" + index + 1);
+          // console.log(billingDate);
           let billNumber =
             "Bill: " +
             moment(billingDate).format("DD/MM/YYYY") +
@@ -265,7 +278,7 @@ module.exports = {
             customerDetails.LatexCollections
           );
           let cashPaymentTableJson = await createCashPaymentTable(
-            customerDetails.CashPayments
+            customerDetails.CashPayments,customerDetails.customerBalance
           );
           let totalDueAmount =
             parseFloat(
@@ -284,14 +297,14 @@ module.exports = {
           let fullFilePath = filePath.concat(fileName);
           console.log(filePath, fullFilePath);
           console.log(fileCustId, billNumber);
-          db.Customer.update(
-            { customerBalance: totalDueAmount },
-            {
-              where: { customerId: customerDetails.customerId },
-            }
-          )
-            .then((dbModel) => console.log("Customer Due Amount updated"))
-            .catch((err) => res.status(422).json(err));
+          // db.Customer.update(
+          //   { customerBalance: totalDueAmount },
+          //   {
+          //     where: { customerId: customerDetails.customerId },
+          //   }
+          // )
+          //   .then((dbModel) => console.log("Customer Due Amount updated"))
+          //   .catch((err) => res.status(422).json(err));
           createPdf(
             {
               customerDetails,
