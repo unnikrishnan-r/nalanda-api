@@ -76,7 +76,7 @@ module.exports = {
 
     await Promise.all(
       calculatedNetDueArray.map(async(customer) => {
-        console.log(customer.customerId, customer.netDue);
+        console.log(customer);
         db.Customer.update(
           { customerBalance: customer.netDue },
           {

@@ -18,7 +18,7 @@ module.exports = {
         .concat(moment(req.body.billToDate).format("MM")),
       billDate: moment(req.body.billToDate).format(),
       billToDate: req.body.billToDate,
-      billFromDate: req.body.billFromDate
+      billFromDate: req.body.billFromDate,
     };
     console.log(BillingSummaryRecord);
 
@@ -79,23 +79,31 @@ module.exports = {
       },
     });
 
+    let openingBalanceSummary = await db.Customer.findAll({
+      attributes: ["customerId", "customerBalance"],
+      raw: true,
+    });
+
     console.log(latexSummary);
 
     console.log(cashSummary);
+
+    console.log(openingBalanceSummary);
 
     await Promise.all(
       latexSummary.map(async (customerSum) => {
         let generatedBillRecord = {};
         generatedBillRecord.customerId = customerSum.customerId;
         generatedBillRecord.totalLatexAmount = customerSum.totalLatexAmount;
-        generatedBillRecord.totalCashCreditAmount = 0
-        generatedBillRecord.totalCashDebitAmount = 0
+        generatedBillRecord.totalCashCreditAmount = 0;
+        generatedBillRecord.totalCashDebitAmount = 0;
+        generatedBillRecord.openingBalanceAmount = 0;
         {
           cashSummary.find(
             (element) =>
               (generatedBillRecord.totalCashCreditAmount =
                 element.customerId === customerSum.customerId &&
-                element.paymentType === '0'
+                element.paymentType === "0"
                   ? element.totalCashAmount
                   : 0)
           );
@@ -105,14 +113,29 @@ module.exports = {
             (element) =>
               (generatedBillRecord.totalCashDebitAmount =
                 element.customerId === customerSum.customerId &&
-                element.paymentType === '1'
+                element.paymentType === "1"
                   ? element.totalCashAmount
                   : 0)
           );
         }
-        console.log("Cash Amounts", generatedBillRecord.totalCashCreditAmount, generatedBillRecord.totalCashDebitAmount)
+        {
+          openingBalanceSummary.find(
+            (element) =>
+              (generatedBillRecord.openingBalanceAmount =
+                element.customerId === customerSum.customerId
+                  ? element.customerBalance
+                  : 0)
+          );
+        }
+        console.log(
+          "Cash Amounts",
+          generatedBillRecord.totalCashCreditAmount,
+          generatedBillRecord.totalCashDebitAmount,
+          generatedBillRecord.openingBalanceAmount
+        );
         {
           generatedBillRecord.totalAmount =
+            generatedBillRecord.openingBalanceAmount +
             generatedBillRecord.totalLatexAmount -
             (generatedBillRecord.totalCashDebitAmount -
               generatedBillRecord.totalCashCreditAmount);
@@ -137,7 +160,9 @@ module.exports = {
     BillingSummaryRecord.totalBillAmount = totalBillAmount;
     BillingSummaryRecord.totaldryWeight = totaldryWeight;
     BillingSummaryRecord.totalNetWeight = totalNetWeight;
-    BillingSummaryRecord.unitRatePerKg = parseFloat(totalBillAmount/totaldryWeight).toFixed(2)
+    BillingSummaryRecord.unitRatePerKg = parseFloat(
+      totalBillAmount / totaldryWeight
+    ).toFixed(2);
 
     let statusBillSummary = await db.BillingSummary.upsert(
       BillingSummaryRecord
