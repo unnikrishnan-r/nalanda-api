@@ -14,21 +14,17 @@ module.exports = {
           model: db.CashPayment,
           required: false,
           raw: true,
-          attributes: [
-            [
-              Sequelize.literal(`CASE
-            WHEN SUM(totalAmount) IS NULL THEN 0
-            ELSE SUM(totalAmount)
-        END`),
-              "BillAmount",
-            ],
-          ],
+          attributes: ["totalAmount", "updatedAt"],
           where: {
             paymentType: 0,
+            updatedAt: {
+              [Op.in]: Sequelize.literal(
+                `(select MAX(c.updatedAt) from CashPayment C where (CashPayments.customerId = C.customerId AND C.paymentType = 0))`
+              ),
+            },
           },
         },
       ],
-      group: ["Customer.customerId"],
     });
 
     let customerPaidObject = await db.Customer.findAll({
@@ -39,24 +35,20 @@ module.exports = {
           model: db.CashPayment,
           required: false,
           raw: true,
-          attributes: [
-            [
-              Sequelize.literal(`CASE
-            WHEN SUM(totalAmount) IS NULL THEN 0
-            ELSE SUM(totalAmount)
-        END`),
-              "PaidAmount",
-            ],
-          ],
+          attributes: ["totalAmount", "updatedAt"],
           where: {
             paymentType: 1,
             paymentNotes: "Bill Settlement",
+            updatedAt: {
+              [Op.in]: Sequelize.literal(
+                `(select MAX(c.updatedAt) from CashPayment C where (CashPayments.customerId = C.customerId AND C.paymentType = 1 AND c.paymentNotes = "Bill Settlement"))`
+              ),
+            },
           },
         },
       ],
-      group: ["Customer.customerId"],
     });
-
+    console.log(customerPaidObject)
     let calculatedNetDueArray = [];
     customerBillObject.map((element) => {
       let x = customerPaidObject.find(
@@ -64,18 +56,18 @@ module.exports = {
       );
       calculatedNetDueArray.push({
         customerId: element["customerId"],
-        billAmount: element["CashPayments.BillAmount"],
-        paidAmount: x["CashPayments.PaidAmount"],
+        billAmount: element["CashPayments.totalAmount"],
+        paidAmount: x["CashPayments.totalAmount"],
         netDue: Number(
           (
-            element["CashPayments.BillAmount"] - x["CashPayments.PaidAmount"]
+            element["CashPayments.totalAmount"] - x["CashPayments.totalAmount"]
           ).toFixed(2)
         ),
       });
     });
 
     await Promise.all(
-      calculatedNetDueArray.map(async(customer) => {
+      calculatedNetDueArray.map(async (customer) => {
         console.log(customer);
         db.Customer.update(
           { customerBalance: customer.netDue },
