@@ -41,7 +41,7 @@ module.exports = {
             paymentNotes: "Bill Settlement",
             updatedAt: {
               [Op.in]: Sequelize.literal(
-                `(select MAX(c.updatedAt) from CashPayment C where (CashPayments.customerId = C.customerId AND C.paymentType = 1 AND c.paymentNotes = "Bill Settlement"))`
+                `(select MAX(C.updatedAt) from CashPayment C where (CashPayments.customerId = C.customerId AND C.paymentType = 1 AND c.paymentNotes = "Bill Settlement"))`
               ),
             },
           },
