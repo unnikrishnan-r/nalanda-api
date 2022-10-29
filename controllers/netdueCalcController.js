@@ -19,7 +19,7 @@ module.exports = {
             paymentType: 0,
             updatedAt: {
               [Op.in]: Sequelize.literal(
-                `(select MAX(c.updatedAt) from CashPayment C where (CashPayments.customerId = C.customerId AND C.paymentType = 0))`
+                `(select MAX(C.updatedAt) from CashPayment C where (CashPayments.customerId = C.customerId AND C.paymentType = 0))`
               ),
             },
           },
@@ -41,7 +41,7 @@ module.exports = {
             paymentNotes: "Bill Settlement",
             updatedAt: {
               [Op.in]: Sequelize.literal(
-                `(select MAX(C.updatedAt) from CashPayment C where (CashPayments.customerId = C.customerId AND C.paymentType = 1 AND c.paymentNotes = "Bill Settlement"))`
+                `(select MAX(C.updatedAt) from CashPayment C where (CashPayments.customerId = C.customerId AND C.paymentType = 1 AND C.paymentNotes = "Bill Settlement"))`
               ),
             },
           },
