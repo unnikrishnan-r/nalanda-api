@@ -76,6 +76,9 @@ module.exports = {
           [Op.gte]: BillingSummaryRecord.billFromDate,
           [Op.lte]: BillingSummaryRecord.billToDate,
         },
+        paymentNotes:{
+          [Op.notLike]: '%Bill%'
+        }
       },
     });
 
