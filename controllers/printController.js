@@ -49,7 +49,7 @@ module.exports = {
       await Promise.all(
         customerBills.map(async (customerBills, index) => {
           let billDate = moment(customerBills.dataValues.paymentDate)
-            .subtract(1, "days")
+            .subtract(2, "days")
             .format("DDMMYYYY");
 
           let derivedFileName =
