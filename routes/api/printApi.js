@@ -6,4 +6,8 @@ router
   .route("/")
   .post(printController.print)
 
+router
+.route("/download")
+.post(printController.download)
+
 module.exports = router;
