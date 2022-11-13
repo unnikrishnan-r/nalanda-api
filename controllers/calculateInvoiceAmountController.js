@@ -22,14 +22,55 @@ module.exports = {
     };
     console.log(BillingSummaryRecord);
 
+    let latexEntriesWhereClause = req.body.customerId
+      ? {
+          collectionDate: {
+            [Op.gte]: BillingSummaryRecord.billFromDate,
+            [Op.lte]: BillingSummaryRecord.billToDate,
+          },
+          customerId: req.body.customerId,
+        }
+      : {
+          collectionDate: {
+            [Op.gte]: BillingSummaryRecord.billFromDate,
+            [Op.lte]: BillingSummaryRecord.billToDate,
+          },
+        };
+
+    let cashPaymentWhereClause = req.body.customerId
+      ? {
+          paymentDate: {
+            [Op.gte]: BillingSummaryRecord.billFromDate,
+            [Op.lte]: BillingSummaryRecord.billToDate,
+          },
+          paymentNotes: {
+            [Op.notLike]: "%Bill%",
+          },
+          customerId: req.body.customerId,
+        }
+      : {
+          paymentDate: {
+            [Op.gte]: BillingSummaryRecord.billFromDate,
+            [Op.lte]: BillingSummaryRecord.billToDate,
+          },
+          paymentNotes: {
+            [Op.notLike]: "%Bill%",
+          },
+        };
+    let openingBalanceWhereClause = req.body.customerId
+      ? { customerId: req.body.customerId }
+      : {
+          customerId: {
+            [Op.gte]: 0,
+          },
+        };
+
+    console.log(latexEntriesWhereClause);
+    console.log(cashPaymentWhereClause);
+    console.log(openingBalanceWhereClause);
     //Find all latex entries that needs to be updated
     let latexEntries = await db.LatexCollection.findAll({
-      where: {
-        collectionDate: {
-          [Op.gte]: BillingSummaryRecord.billFromDate,
-          [Op.lte]: BillingSummaryRecord.billToDate,
-        },
-      },
+      where: latexEntriesWhereClause,
     });
 
     //Calculate and update payment status for each latex entry
@@ -56,13 +97,9 @@ module.exports = {
       ],
       raw: true,
       group: ["customerId"],
-      where: {
-        collectionDate: {
-          [Op.gte]: BillingSummaryRecord.billFromDate,
-          [Op.lte]: BillingSummaryRecord.billToDate,
-        },
-      },
+      where: latexEntriesWhereClause,
     });
+    
     let cashSummary = await db.CashPayment.findAll({
       attributes: [
         "customerId",
@@ -71,22 +108,14 @@ module.exports = {
       ],
       raw: true,
       group: ["customerId", "paymentType"],
-      where: {
-        paymentDate: {
-          [Op.gte]: BillingSummaryRecord.billFromDate,
-          [Op.lte]: BillingSummaryRecord.billToDate,
-        },
-        paymentNotes:{
-          [Op.notLike]: '%Bill%'
-        }
-      },
+      where: cashPaymentWhereClause,
     });
 
     let openingBalanceSummary = await db.Customer.findAll({
       attributes: ["customerId", "customerBalance"],
+      where: openingBalanceWhereClause,
       raw: true,
     });
-
     console.log(latexSummary);
 
     console.log(cashSummary);

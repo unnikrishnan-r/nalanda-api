@@ -78,8 +78,8 @@ async function createLatexTable(latexData) {
 }
 
 async function createCashPaymentTable(cashPaymentData, customerBalance) {
-  console.log(customerBalance)
-  console.log(cashPaymentData)
+  console.log(customerBalance);
+  console.log(cashPaymentData);
   let cashPaymentTableJson = {};
   cashPaymentTableJson.headers = [
     { label: "Sl No", property: "slno", width: 50 },
@@ -238,7 +238,15 @@ module.exports = {
   generateInvoiceForCustomer: async function (req, res) {
     let billingDate = req.body.billToDate;
     let generatedInvoices = [];
+    let customerObjectWhereClause = req.body.customerId
+      ? { customerId: req.body.customerId }
+      : {
+          customerId: {
+            [Op.gte]: 0,
+          },
+        };
     let customerObject = await db.Customer.findAll({
+      where: customerObjectWhereClause,
       include: [
         {
           model: db.CashPayment,
@@ -248,9 +256,9 @@ module.exports = {
               [Op.gte]: moment(req.body.billFromDate).format("MM/DD/YYYY"),
               [Op.lte]: moment(req.body.billToDate).format("MM/DD/YYYY"),
             },
-            paymentNotes:{
-              [Op.notLike]: '%Bill%'
-            }
+            paymentNotes: {
+              [Op.notLike]: "%Bill%",
+            },
           },
         },
         {
@@ -281,7 +289,8 @@ module.exports = {
             customerDetails.LatexCollections
           );
           let cashPaymentTableJson = await createCashPaymentTable(
-            customerDetails.CashPayments,customerDetails.customerBalance
+            customerDetails.CashPayments,
+            customerDetails.customerBalance
           );
           let totalDueAmount =
             parseFloat(
