@@ -75,7 +75,7 @@ module.exports = {
   updateSpecificPayment: function (req, res) {
     db.CashPayment.update(req.body, {
       where: {
-        seqNumber: parseInt(req.body.seqNumber),
+        paymentDate: req.body.paymentDate,
         customerId: parseInt(req.body.customerId),
       },
     })
