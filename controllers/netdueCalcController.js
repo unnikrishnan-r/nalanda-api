@@ -6,8 +6,16 @@ const Op = Sequelize.Op;
 
 module.exports = {
   netdueCalculation: async function (req, res) {
+    let customerObjectWhereClause = req.body.customerId
+      ? { customerId: req.body.customerId }
+      : {
+          customerId: {
+            [Op.gte]: 0,
+          },
+        };
     let customerBillObject = await db.Customer.findAll({
       attributes: ["Customer.customerId"],
+      where: customerObjectWhereClause,
       raw: true,
       include: [
         {
@@ -29,6 +37,7 @@ module.exports = {
 
     let customerPaidObject = await db.Customer.findAll({
       attributes: ["Customer.customerId"],
+      where: customerObjectWhereClause,
       raw: true,
       include: [
         {
@@ -48,7 +57,7 @@ module.exports = {
         },
       ],
     });
-    console.log(customerPaidObject)
+    console.log(customerPaidObject);
     let calculatedNetDueArray = [];
     customerBillObject.map((element) => {
       let x = customerPaidObject.find(
