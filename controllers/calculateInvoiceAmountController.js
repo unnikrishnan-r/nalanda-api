@@ -5,6 +5,11 @@ var Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 
 module.exports = {
+  //Gets Latex Summary, Cash Summary and Opening Balance
+  //Calculates Bill Record for each customer, inserts record to Cash Payment table as new bill
+  //Calculates Bill Summary for all customers together and inserts to Bill Summary Table
+  //Updates payment status in Latex Entry table
+
   calculateInvoiceAmount: async function (req, res) {
     let statusCash;
     let totalBillAmount = 0;
@@ -29,12 +34,14 @@ module.exports = {
             [Op.lte]: BillingSummaryRecord.billToDate,
           },
           customerId: req.body.customerId,
+          paymentStatus: 0,
         }
       : {
           collectionDate: {
             [Op.gte]: BillingSummaryRecord.billFromDate,
             [Op.lte]: BillingSummaryRecord.billToDate,
           },
+          paymentStatus: 0,
         };
 
     let cashPaymentWhereClause = req.body.customerId
@@ -99,7 +106,7 @@ module.exports = {
       group: ["customerId"],
       where: latexEntriesWhereClause,
     });
-    
+
     let cashSummary = await db.CashPayment.findAll({
       attributes: [
         "customerId",

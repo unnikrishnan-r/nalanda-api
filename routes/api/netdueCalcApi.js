@@ -5,4 +5,8 @@ router
   .route("/")
   .post(netdueCalcController.netdueCalculation)
   .options(netdueCalcController.options);
+router
+  .route("/new")
+  .post(netdueCalcController.netdueCalculationNew)
+  .options(netdueCalcController.options);
 module.exports = router;
