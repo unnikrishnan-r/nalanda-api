@@ -53,7 +53,7 @@ module.exports = {
             [Op.lte]: BillingSummaryRecord.billToDate,
           },
           paymentNotes: {
-            [Op.notLike]: "%Bill%",
+            [Op.notLike]: "%Bill Generated%",
           },
           customerId: req.body.customerId,
         }
@@ -63,7 +63,7 @@ module.exports = {
             [Op.lte]: BillingSummaryRecord.billToDate,
           },
           paymentNotes: {
-            [Op.notLike]: "%Bill%",
+            [Op.notLike]: "%Bill Generated%",
           },
         };
     let openingBalanceWhereClause = req.body.customerId
