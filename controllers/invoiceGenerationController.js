@@ -257,7 +257,7 @@ module.exports = {
               [Op.lte]: moment(req.body.billToDate).format("MM/DD/YYYY"),
             },
             paymentNotes: {
-              [Op.notLike]: "%Bill%",
+              [Op.notLike]: "%Bill Generated%",
             },
           },
         },
