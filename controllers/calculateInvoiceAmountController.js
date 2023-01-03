@@ -35,15 +35,13 @@ module.exports = {
             [Op.gte]: BillingSummaryRecord.billFromDate,
             [Op.lte]: BillingSummaryRecord.billToDate,
           },
-          customerId: req.body.customerId,
-          paymentStatus: 0,
+          customerId: req.body.customerId
         }
       : {
           collectionDate: {
             [Op.gte]: BillingSummaryRecord.billFromDate,
             [Op.lte]: BillingSummaryRecord.billToDate,
-          },
-          paymentStatus: 0,
+          }
         };
 
     let cashPaymentWhereClause = req.body.customerId
@@ -89,6 +87,8 @@ module.exports = {
       group: ["customerId"],
       where: latexEntriesWhereClause,
     });
+
+    console.log("# of latexSummary" , latexSummary.length)
     
     //Find all latex entries that needs to be updated
     let latexEntries = await db.LatexCollection.findAll({
