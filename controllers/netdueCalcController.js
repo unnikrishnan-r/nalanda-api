@@ -3,6 +3,7 @@ var Sequelize = require("sequelize");
 var moment = require("moment");
 
 const Op = Sequelize.Op;
+const netDueCalc = require("../functions/netDueCalc");
 
 module.exports = {
   netdueCalculation: async function (req, res) {
@@ -90,6 +91,11 @@ module.exports = {
     );
 
     res.json(calculatedNetDueArray);
+  },
+
+  netdueCalculationNew: async function (req, res) {
+    console.log("netdueCalculationNew")
+    res.json(await netDueCalc.netdueCalculation(req))
   },
   options: function (req, res) {
     res.set({

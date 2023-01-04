@@ -3,14 +3,21 @@ const db = require("../database/models");
 
 var Sequelize = require("sequelize");
 const Op = Sequelize.Op;
+const netDueCalc = require("../functions/netDueCalc");
 
 module.exports = {
+  //Gets Latex Summary, Cash Summary and Opening Balance
+  //Calculates Bill Record for each customer, inserts record to Cash Payment table as new bill
+  //Calculates Bill Summary for all customers together and inserts to Bill Summary Table
+  //Updates payment status in Latex Entry table
+
   calculateInvoiceAmount: async function (req, res) {
     let statusCash;
     let totalBillAmount = 0;
     let totalNetWeight = 0;
     let totaldryWeight = 0;
 
+    await netDueCalc.netdueCalculation(req);
     //Insert record in to Billing Summary Table
     let BillingSummaryRecord = {
       billPeriod: moment(req.body.billToDate)
@@ -28,13 +35,13 @@ module.exports = {
             [Op.gte]: BillingSummaryRecord.billFromDate,
             [Op.lte]: BillingSummaryRecord.billToDate,
           },
-          customerId: req.body.customerId,
+          customerId: req.body.customerId
         }
       : {
           collectionDate: {
             [Op.gte]: BillingSummaryRecord.billFromDate,
             [Op.lte]: BillingSummaryRecord.billToDate,
-          },
+          }
         };
 
     let cashPaymentWhereClause = req.body.customerId
@@ -44,7 +51,7 @@ module.exports = {
             [Op.lte]: BillingSummaryRecord.billToDate,
           },
           paymentNotes: {
-            [Op.notLike]: "%Bill%",
+            [Op.notLike]: "%Bill Generated%",
           },
           customerId: req.body.customerId,
         }
@@ -54,7 +61,7 @@ module.exports = {
             [Op.lte]: BillingSummaryRecord.billToDate,
           },
           paymentNotes: {
-            [Op.notLike]: "%Bill%",
+            [Op.notLike]: "%Bill Generated%",
           },
         };
     let openingBalanceWhereClause = req.body.customerId
@@ -68,6 +75,21 @@ module.exports = {
     console.log(latexEntriesWhereClause);
     console.log(cashPaymentWhereClause);
     console.log(openingBalanceWhereClause);
+
+    let latexSummary = await db.LatexCollection.findAll({
+      attributes: [
+        "customerId",
+        [Sequelize.fn("SUM", Sequelize.col("totalAmount")), "totalLatexAmount"],
+        [Sequelize.fn("SUM", Sequelize.col("netWeight")), "netWeight"],
+        [Sequelize.fn("SUM", Sequelize.col("dryWeight")), "dryWeight"],
+      ],
+      raw: true,
+      group: ["customerId"],
+      where: latexEntriesWhereClause,
+    });
+
+    console.log("# of latexSummary" , latexSummary.length)
+    
     //Find all latex entries that needs to be updated
     let latexEntries = await db.LatexCollection.findAll({
       where: latexEntriesWhereClause,
@@ -88,18 +110,7 @@ module.exports = {
     );
 
     //Make Bill Generation Entries by customer
-    let latexSummary = await db.LatexCollection.findAll({
-      attributes: [
-        "customerId",
-        [Sequelize.fn("SUM", Sequelize.col("totalAmount")), "totalLatexAmount"],
-        [Sequelize.fn("SUM", Sequelize.col("netWeight")), "netWeight"],
-        [Sequelize.fn("SUM", Sequelize.col("dryWeight")), "dryWeight"],
-      ],
-      raw: true,
-      group: ["customerId"],
-      where: latexEntriesWhereClause,
-    });
-    
+
     let cashSummary = await db.CashPayment.findAll({
       attributes: [
         "customerId",
@@ -183,7 +194,7 @@ module.exports = {
           ));
         console.log(generatedBillRecord);
         statusCash = await db.CashPayment.upsert(generatedBillRecord);
-        totalBillAmount += generatedBillRecord.totalAmount;
+        totalBillAmount += generatedBillRecord.totalLatexAmount;
         totaldryWeight += customerSum.dryWeight;
         totalNetWeight += customerSum.netWeight;
       })
