@@ -27,6 +27,7 @@ module.exports = {
   getCashPaymentsPerCustomer: function (req, res) {
     db.CashPayment.findAll({
       include: [{ model: db.Customer, attributes: ["customerName"] }],
+      order: [["paymentDate", "DESC"]],
       where: {
         customerId: parseInt(req.query.customerId),
       },

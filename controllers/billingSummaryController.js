@@ -3,7 +3,7 @@ const db = require("../database/models");
 module.exports = {
   findAll: function (req, res) {
     db.BillingSummary.findAll({
-      order: [["billPeriod", "DESC"]],
+      order: [["seqNumber", "DESC"]],
     })
       .then(
         (dbModel) => (
