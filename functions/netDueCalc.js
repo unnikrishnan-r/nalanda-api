@@ -17,25 +17,25 @@ module.exports = {
     let latexEntriesWhereClause = req.body.billFromDate
       ? {
           collectionDate: {
-            [Op.lte]: req.body.billFromDate,
+            [Op.lt]: req.body.billFromDate,
           },
         }
       : {
           collectionDate: {
-            [Op.lte]: moment().format("YYYY-MM-DD"),
+            [Op.lt]: moment().format("YYYY-MM-DD"),
           },
         };
 
     let cashPaymentWhereClause = req.body.billFromDate
       ? {
           paymentDate: {
-            [Op.lte]: req.body.billFromDate,
+            [Op.lt]: req.body.billFromDate,
           },
           paymentType: 1,
         }
       : {
           paymentDate: {
-            [Op.lte]: moment().format("YYYY-MM-DD"),
+            [Op.lt]: moment().format("YYYY-MM-DD"),
           },
           paymentType: 1,
         };
