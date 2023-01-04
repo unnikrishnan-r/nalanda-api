@@ -194,7 +194,7 @@ module.exports = {
           ));
         console.log(generatedBillRecord);
         statusCash = await db.CashPayment.upsert(generatedBillRecord);
-        totalBillAmount += generatedBillRecord.totalAmount;
+        totalBillAmount += generatedBillRecord.totalLatexAmount;
         totaldryWeight += customerSum.dryWeight;
         totalNetWeight += customerSum.netWeight;
       })
