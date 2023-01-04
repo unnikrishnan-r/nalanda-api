@@ -20,6 +20,7 @@ module.exports = {
   getLatexEntriesPerCustomer: function (req, res) {
     db.LatexCollection.findAll({
       include: [{ model: db.Customer, attributes: ["customerName"] }],
+      order: [["collectionDate", "DESC"]],
       where: {
         customerId: parseInt(req.query.customerId),
       },
