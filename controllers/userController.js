@@ -25,7 +25,10 @@ module.exports = {
       });
   },
   update: function (req, res) {
-    db.Employee.update(req.body, { where: { id: req.params.id } })
+    db.Employee.update(req.body, {
+      where: { id: req.params.id },
+      individualHooks: true,
+    })
       .then((dbModel) =>
         res.json({ id: dbModel.id, username: dbModel.username })
       )
