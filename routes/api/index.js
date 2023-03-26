@@ -13,7 +13,7 @@ const loginRoute = require("./loginApi");
 const netdueCalcRoute = require("./netdueCalcApi");
 const ledgerCustomerRoute = require("./ledgerCustomerApi");
 const ledgerBookRoute = require("./ledgerBookApi")
-
+const ledgerStatementGenerationRoute = require("./ledgerStatementGenerationApi")
 
 console.log("test");
 router.use("/newcustomer", newCustomerRoute);
@@ -30,6 +30,7 @@ router.use("/login", loginRoute);
 router.use("/netdueCalc", netdueCalcRoute);
 router.use("/ledgerCustomer", ledgerCustomerRoute);
 router.use("/ledgerBook", ledgerBookRoute);
+router.use("/ledgerStatement",ledgerStatementGenerationRoute)
 
 
 module.exports = router;
