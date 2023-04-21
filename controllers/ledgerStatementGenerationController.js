@@ -12,7 +12,6 @@ const uploadAPI = require("./uploadController");
 async function createLedgerTable(ledgerCustomer) {
   let ledgerTableJson = {};
   ledgerTableJson.headers = [
-    { label: "Sl No", property: "slno", width: 50 },
     { label: "Date", property: "date", width: 50 },
     { label: "Particulars", property: "notes", width: 200 },
     { label: "Debit", property: "debitAmount", width: 50 },
@@ -32,7 +31,6 @@ async function createLedgerTable(ledgerCustomer) {
         ? -1 * ledgerEntry.totalAmount
         : ledgerEntry.totalAmount;
     ledgerTableJson.datas.push({
-      slno: index + 1,
       date: moment(ledgerEntry.ledgerEntryDate).format("DD/MM/YYYY"),
       notes: ledgerEntry.paymentNotes,
       debitAmount:
@@ -95,7 +93,7 @@ async function createPdf(req, res) {
   doc
     .font("Courier-Bold")
     .fontSize(10)
-    .text(`LEDGER STATEMENT GENERATED ON  ${moment().format("DD/MM/YYYY")}`, { align: "left", underline: true });
+    .text(moment().format("DD/MM/YYYY"), { align: "left", underline: true });
   doc.moveDown(); // separate tables
 
   doc.table(req.ledgerTableJson, { width: 300 }); // A4 595.28 x 841.89 (portrait) (about width sizes)
