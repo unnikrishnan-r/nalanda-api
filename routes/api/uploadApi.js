@@ -6,5 +6,8 @@ router
   .route("/")
   .post(uploadController.upload)
   .options(uploadController.options);
-
+  router
+  .route("/ledger")
+  .post(uploadController.uploadledger)
+  .options(uploadController.options);
 module.exports = router;

@@ -26,6 +26,14 @@ module.exports = {
     res.set("Access-Control-Allow-Origin", "*"),
       res.status(200).json(loopStatus);
   },
+  uploadledger: async function (req, res) {
+    console.log("Inside upload Ledger controller");
+    let uploadLocation = await uploadSingleFile(req.body.file);
+    console.log("All Uploads Done");
+    // console.log(loopStatus);
+    res.set("Access-Control-Allow-Origin", "*"),
+    res.status(200).json(uploadLocation);
+  },
   options: function (req, res) {
     res.set({
       "Access-Control-Allow-Origin": "*",
