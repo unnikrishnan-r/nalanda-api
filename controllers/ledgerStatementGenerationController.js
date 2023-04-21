@@ -95,7 +95,7 @@ async function createPdf(req, res) {
   doc
     .font("Courier-Bold")
     .fontSize(10)
-    .text("LEDGER STATEMENT", { align: "left", underline: true });
+    .text(`LEDGER STATEMENT GENERATED ON  ${moment().format("DD/MM/YYYY")}`, { align: "left", underline: true });
   doc.moveDown(); // separate tables
 
   doc.table(req.ledgerTableJson, { width: 300 }); // A4 595.28 x 841.89 (portrait) (about width sizes)
