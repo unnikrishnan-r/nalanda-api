@@ -78,6 +78,7 @@ module.exports = {
       where: {
         ledgerEntryDate: req.body.ledgerEntryDate,
         customerId: parseInt(req.body.customerId),
+        paymentType:req.body.paymentType
       },
     })
       .then(
