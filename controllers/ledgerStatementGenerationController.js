@@ -9,8 +9,9 @@ const PDFDocument = require("pdfkit-table");
 const { env } = require("process");
 const uploadAPI = require("./uploadController");
 
-async function createLedgerTable(ledgerCustomer) {
+async function createLedgerTable(ledgerCustomer, fromDate) {
   let ledgerTableJson = {};
+  let openingLinePopulated = false;
   ledgerTableJson.headers = [
     { label: "Date", property: "date", width: 50 },
     { label: "Particulars", property: "notes", width: 200 },
@@ -26,27 +27,53 @@ async function createLedgerTable(ledgerCustomer) {
       balanceTotal = 0;
     }
     ledgerEntry = entry.dataValues;
-    balanceTotal +=
-      ledgerEntry.paymentType == "0"
-        ? -1 * ledgerEntry.totalAmount
-        : ledgerEntry.totalAmount;
-    ledgerTableJson.datas.push({
-      date: moment(ledgerEntry.ledgerEntryDate).format("DD/MM/YYYY"),
-      notes: ledgerEntry.paymentNotes,
-      debitAmount:
+
+    let openDate = moment(fromDate).format("YYYY-MM-DD");
+    let lineDate = moment(ledgerEntry.ledgerEntryDate).format("YYYY-MM-DD");
+
+    console.log(openDate, lineDate);
+    const isBefore = moment(lineDate).isBefore(openDate);
+    console.log(isBefore);
+
+    if (!isBefore) {
+      if (!openingLinePopulated) {
+        openingLinePopulated = true;
+        ledgerTableJson.datas.push({
+          date: moment(fromDate).format("DD/MM/YYYY"),
+          notes: "Opening Balance",
+          debitAmount: 0,
+          creditAmount: 0,
+          balance: parseFloat(balanceTotal).toFixed(2).toLocaleString("en-IN"),
+        });
+      }
+      balanceTotal +=
         ledgerEntry.paymentType == "0"
-          ? parseFloat(ledgerEntry.totalAmount)
-              .toFixed(2)
-              .toLocaleString("en-IN")
-          : "",
-      creditAmount:
-        ledgerEntry.paymentType == "1"
-          ? parseFloat(ledgerEntry.totalAmount)
-              .toFixed(2)
-              .toLocaleString("en-IN")
-          : "",
-      balance: parseFloat(balanceTotal).toFixed(2).toLocaleString("en-IN"),
-    });
+          ? -1 * ledgerEntry.totalAmount
+          : ledgerEntry.totalAmount;
+
+      ledgerTableJson.datas.push({
+        date: moment(ledgerEntry.ledgerEntryDate).format("DD/MM/YYYY"),
+        notes: ledgerEntry.paymentNotes,
+        debitAmount:
+          ledgerEntry.paymentType == "0"
+            ? parseFloat(ledgerEntry.totalAmount)
+                .toFixed(2)
+                .toLocaleString("en-IN")
+            : "",
+        creditAmount:
+          ledgerEntry.paymentType == "1"
+            ? parseFloat(ledgerEntry.totalAmount)
+                .toFixed(2)
+                .toLocaleString("en-IN")
+            : "",
+        balance: parseFloat(balanceTotal).toFixed(2).toLocaleString("en-IN"),
+      });
+    } else {
+      balanceTotal +=
+        ledgerEntry.paymentType == "0"
+          ? -1 * ledgerEntry.totalAmount
+          : ledgerEntry.totalAmount;
+    }
   });
 
   return ledgerTableJson;
@@ -131,8 +158,12 @@ module.exports = {
   generateLedgerStatementForCustomer: async function (req, res) {
     let fullFilePath;
     let customerId = req.body.customerId;
+    let fromDate = req.body.ledgerFromEntryDate;
+
     let ledgerObject = await db.LedgerCustomer.findAll({
-      where: { customerId: customerId },
+      where: {
+        customerId: customerId,
+      },
       include: [{ model: db.LedgerBook }],
     });
 
@@ -143,7 +174,10 @@ module.exports = {
         customerPhone: ledgerObject[0].dataValues.customerPhone,
         customerEmail: ledgerObject[0].dataValues.customerEmail,
       };
-      let ledgerTableJson = await createLedgerTable(ledgerObject[0].dataValues);
+      let ledgerTableJson = await createLedgerTable(
+        ledgerObject[0].dataValues,
+        fromDate
+      );
       let totalDueAmount =
         ledgerTableJson.datas[ledgerTableJson.datas.length - 1].balance;
       let filePath = "./Ledger_" + moment().format("DDMMYYYY") + "/";
