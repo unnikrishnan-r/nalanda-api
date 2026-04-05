@@ -1,4 +1,9 @@
-var printer = require("@thiagoelg/node-printer");
+var printer;
+try {
+  printer = require("@thiagoelg/node-printer");
+} catch (err) {
+  console.warn("node-printer not available - print functionality disabled");
+}
 var moment = require("moment");
 const fs = require("fs");
 const db = require("../database/models");

@@ -13,6 +13,7 @@
   "author": "Unnikrishnan Ramachandran",
   "license": "ISC",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.82.0",
     "@thiagoelg/node-printer": "^0.6.2",
     "aws-sdk": "^2.1157.0",
     "bcryptjs": "^2.4.3",
