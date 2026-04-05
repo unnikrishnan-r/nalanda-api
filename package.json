@@ -2,7 +2,7 @@
   "name": "nalanda-api",
   "version": "1.0.0",
   "engines": {
-    "node": "12.x"
+    "node": "22.x"
   },
   "description": "Backend APIs to serve Nalanda Latex Management System",
   "main": "server.js",
